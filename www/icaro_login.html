@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+
+
+    <link rel="stylesheet" href="./css/index.css">
+    <link rel="stylesheet" href="./css/icaro.css">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="./css/fontawesome.css">
+    <link rel="stylesheet" href="./css/fontawesome.min.css">
+
+    <script src="./cordova.js"></script>
+
+    <script src="./js/index.js"></script>
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/icaro.js"></script>
+
+    <title>Icaro Evo</title>
+</head>
+
+<body>
+
+    <div class="page-content" id="container" style="text-align: center;">
+
+        <div id="div_login" style="text-align: center; margin-top: 20%;">
+            <div class="input-style input-style-1 input-required" id="logo">
+                <h5>IcaroCoop-DEV</h5>
+                <img style="width: 25%;" src="./img/logo.png" alt="">
+            </div>
+
+            <div style="padding-left: 10%; padding-right: 10%; margin-top: 10%;" id="select_realms"
+                name="select_realms">
+                <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" id="realms"
+                    name="realms">
+                    <option value="0" >Seleziona l'ambito</option>
+                    <option value="progetto_iccs" >progetto_iccs</option>
+                </select>
+            </div>
+            <div style="padding-left: 10%; padding-right: 10%; margin-top: 10%;" id="div_select_idente"
+            name="div_select_idente">
+
+            <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" id="idente"
+                name="idente" onchange="getSTRUTTURE(this.value)">
+            </select>
+        </div>
+            <div style="padding-left: 10%; padding-right: 10%; margin-top: 10%;" id="div_select_struttura"
+                name="div_select_struttura">
+
+                <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" id="idstruttura"
+                    name="idstruttura" onchange="getSERVIZI(this.value)">
+                    <option value="0" selected>Seleziona la struttura</option>
+                </select>
+            </div>
+
+            <div style="padding-left: 10%; padding-right: 10%; margin-top: 10%;" id="div_select_servizi"
+                name="div_select_servizi">
+
+                <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" id="idservizio"
+                    name="idservizio">
+
+                </select>
+                <div style="padding-right: 10%; padding-left: 10%;">
+                    <div class="row row_button" style="margin-top: 10%;">
+                        <div class="col-12 pl-1 pr-1">
+                            <div class="btn btn-outline-primary" onclick="continua()"><b>Continua</b></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="div_accesso_credenziali" style="display: none;">
+                <br>
+                <div class="input-style input-style-1 input-required" style=" padding-left: 10%; padding-right: 10%;">
+                    <span class="color-highlight">Username</span>
+                    <input class="form-control" type="name" id="username" name="username" placeholder="Username"
+                        value="struttura">
+                </div>
+
+                <div class="row" style="padding-right: 10%; padding-left: 10%;">
+                    <span class="color-highlight">Password</span>
+                    <div class="col-10">
+                        <div class="input-style input-style-1 input-required">
+                            <input class="form-control" type="password" id="password" name="password"
+                                placeholder="Password" value="password">
+                        </div>
+                    </div>
+
+                    <div class="col-2">
+                        <a href="javascript:void(0)" onclick="viewPassword();">
+                            <img src="./img/eye.svg" alt="" style="margin-top: 3%;">
+                        </a>
+                    </div>
+                </div>
+
+
+                <div style="padding-right: 10%; padding-left: 10%;">
+                    <div class="row row_button" style="margin-top: 10%;">
+                        <div class="col-12 pl-1 pr-1">
+                            <div class="btn btn-outline-primary" onclick="login()"><b>Accedi</b></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    <!--input type="hidden" id="idente" name="idente" value=""-->
+</body>
+
+</html>
+
+<script type="text/javascript">
+    //document.addEventListener("deviceready", onDeviceReady, false);
+    $("#div_select_struttura").hide();
+    $("#div_select_idente").hide();
+    $("#div_select_servizi").hide();
+    
+    //$("#div_login").hide();
+    //$('#container').append('<div class="loading" id="div_spinner"><div class="loader"></div></div>')
+    //$('#container').append('<div style="margin-top:50%;" id="div_spinner" class="lds-ripple"><div></div><div></div></div>')
+
+    //$("#container").append('<br><br><br><br><br><br><div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-top: 50%;"><span class="visually-hidden">Caricamento in corso...</span></div>');
+    function onDeviceReady() {
+
+        localStorage.removeItem("idservizio");
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('idstruttura');
+        localStorage.removeItem('idente');
+        //var version_code='100';
+        //$("#container").hide();
+        cordova.getAppVersion.getVersionNumber(function (version) {
+            localStorage.setItem('version', version);
+            //version_code = localStorage.getItem('version');
+            //version_code = version_code.split(".").join("");
+        });
+
+        //var url = "https://demo.sicare.it/sicare_mobile/icaro-evo-dev/api_" + version_code + "/mobile_icaroevo_action.php?_action=get_listaenti";
+        //$('#realms').append('<option value="progetto_iccs">progetto_iccs</option>');
+        /*
+        $.ajax({
+            url: url,
+            type: "POST",
+            dataType: "html",
+            contentType: 'text/html',
+            success: function (result) {
+                var elenco_enti = JSON.parse(result);
+
+                $.each(elenco_enti, function (key, ente) {
+                    var descrizione_ente = capitalizeFirstLetter(ente.realm)
+                    $('#realms').append('<option value="progetto_iccs">progetto_iccs</option>');
+                });
+
+                $("#div_spinner").hide();
+                $("#div_select_struttura").hide();
+                $("#div_select_idente").hide();
+                $("#div_select_servizi").hide();
+                $("#div_login").show();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                $("#div_spinner").hide();
+                if (jqXHR.status == 401) {
+
+                    function alertDismissed() {
+
+                        window.location = "icaro_login.html";
+                    }
+
+                    navigator.notification.alert(
+                        'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                        alertDismissed,         // callback
+                        'Attenzione',            // title
+                        'Ok'                  // buttonName
+                    );
+                }
+                else
+                    alert("ERRORE: " + jqXHR.responseText)
+            }
+        });
+
+        */
+    }
+
+  
+    $("#realms").change(function () {
+
+        var realms = $("#realms").val()
+        if (realms == 0)
+            $("#div_accesso_credenziali").css("display", 'none');
+        else
+            $("#div_accesso_credenziali").css("display", '');
+
+    })
+
+    function viewPassword() {
+        if ($('#password').get(0).type == 'text')
+            $('#password').get(0).type = 'password';
+        else
+            $('#password').get(0).type = 'text';
+    }
+
+    function login() {
+        $('#idstruttura').html('');
+        $('#idservizio').html('');
+
+
+        //$('#container').append('<div class="loading" id="div_spinner_login"><div class="loader"></div></div>')
+        $('#container').append('<div style="margin-top:10%;" id="div_spinner_login" class="lds-ripple"><div></div><div></div></div>')
+
+        //$("#container").append('<br><br><br><br><br><br><div id="div_spinner_login" class="spinner-grow text-primary" role="status" style=" margin-top: 20%;"><span class="visually-hidden">Caricamento in corso...</span></div>');
+        var client_secret = '9cf35845-f09e-4d73-a7f0-048d51bc06a5';
+        var realms = $("#realms").val()
+        //realms="progetto_iccs"
+        var username = $("#username").val()
+        var password = $("#password").val()
+
+        
+            var details = {
+                'grant_type': 'password',
+                'client_secret': client_secret,
+                'client_id': 'simeal',
+                'username': username,
+                'password': password,
+            };
+        /*
+        var client_secret = '';
+        
+        if (realms == 'bonorva')
+            client_secret = 'hWlIMlZVeYdfa6yXjVsGOkKIMBqxAodo';
+        else if (realms == 'polisolidale')
+            client_secret = 'WB7Gzrr4P7tSd5fDZBvSEMGF6L43G26Y';
+            /*
+        else if (realms == 'andria')
+            client_secret = 'LeLUTrWg7Jz82RApDI7TjshQL57quz3K';
+            */
+            
+        //client_secret="9cf35845-f09e-4d73-a7f0-048d51bc06a5"; //DEV progetto_iccs
+
+        if (client_secret == '') {
+            function alertDismissed_client_secret() {
+                location.reload();
+            }
+
+            navigator.notification.alert(
+                'Ente non attivo',  // message
+                alertDismissed_client_secret,         // callback
+                'Attenzione',            // title
+                'Chiudi'                  // buttonName
+            );
+            $("#div_spinner_login").hide();
+            return false;
+        }
+        else
+            localStorage.setItem('client_secret', client_secret);
+
+
+        if (username == '' || password == '') {
+            function alertDismissedUsername() {
+
+            }
+
+            navigator.notification.alert(
+                'Username e Password sono obbligatori',  // message
+                alertDismissedUsername,         // callback
+                'Attenzione',            // title
+                'Chiudi'                  // buttonName
+            );
+            $("#div_spinner_login").hide();
+            return false;
+        }
+
+        var client_id="simeal"; //DEV
+        //var client_id="icaroevo"; //PROD
+
+        var details = {
+            'grant_type': 'password',
+            'client_secret': client_secret,
+            'client_id': client_id,
+            'username': username,
+            'password': password,
+        };
+
+        var formBody = [];
+        for (var property in details) {
+            var encodedKey = encodeURIComponent(property);
+            var encodedValue = encodeURIComponent(details[property]);
+            formBody.push(encodedKey + "=" + encodedValue);
+        }
+        formBody = formBody.join("&");
+
+        var version_code = localStorage.getItem('version');
+        var version_code='1.0.0';
+        version_code = version_code.split(".").join("");
+
+        localStorage.setItem('username', username);
+        localStorage.setItem('password', password);
+
+        localStorage.setItem('realm', realms);
+
+        fetch("https://login-dev.maggiolicloud.it/auth/realms/" + realms + "/protocol/openid-connect/token/", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+            },
+            body: formBody
+        }).then((response) => response.json())
+            .then((responseData) => {
+                var access_token = responseData['access_token'];
+                var refresh_token = responseData['refresh_token'];
+                var expires_in = responseData['expires_in'];
+                var currentdate = new Date();
+                var ora_scadenza_token = currentdate.getHours() + ":" + (currentdate.getMinutes() + (expires_in / 60)) + ":" + currentdate.getSeconds()
+                var data_scadenza_token = getDATA()
+
+                localStorage.setItem('access_token', access_token);
+                localStorage.setItem('refresh_token', refresh_token);
+                localStorage.setItem('ora_scadenza_token', ora_scadenza_token);
+                localStorage.setItem('data_scadenza_token', data_scadenza_token);
+
+                //var refresh_token = responseData['refresh_token'];
+                //localStorage.setItem('refresh_token', refresh_token);
+                //console.log(access_token)
+                if (access_token != '' && access_token != null && access_token != undefined) {
+                    $("#div_accesso_credenziali").hide();
+                    $("#select_realms").hide();
+
+                        var url = 'https://gateway.icaro-dev.maggioli.cloud/services/autorizzazioniservice/api/account-info';
+
+                        //alert(url)
+                        //return false;
+                        $.ajax({
+                            url: url,
+                            type: 'GET',
+                            xhrFields: { withCredentials: true },
+                            crossDomain: true,
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                            },
+                            success: function (result, textStatus, jqXHR) {
+
+
+                                var id = result["id"]
+                                var nome = result["nome"]
+                                var cognome = result["cognome"]
+
+                                localStorage.setItem("nome_operatore", nome);
+                                localStorage.setItem("cognome_operatore", cognome);
+
+                                var email = result["email"]
+                                var tipoUtente = result["tipoUtente"]
+                                var enti = result["enti"]
+                                
+                                
+                                var counter = 1;
+                                var selected = "";
+                                jQuery.each(enti, function (index, ente) {
+                                    var idente = ente.id
+                                    var label = ente.label
+                                    var strutture = ente.strutture
+                                    //alert(JSON.stringify(strutture))
+                                    //localStorage.setItem(idente, strutture);
+                                    localStorage.setItem(idente, JSON.stringify(strutture));
+
+                                    if(counter == 1)
+                                        selected = 'selected';
+
+                                    $('#idente').append('<option value="' + idente + '" '+selected+'>' + label + '</option>');
+
+                                    counter++;
+                                });
+                                //alert(idente)
+                                if(enti.length==1) {
+                                    $("#idente").trigger('change');
+                                }
+
+                                //if(enti.length==1)
+                                    //getSTRUTTURE(idente)
+                            },
+                            error: function (xhr, status, error) {
+                                console.log(xhr.responseText)
+                                function alertDismissed() {
+                                    location.reload();
+                                }
+
+                                navigator.notification.alert(
+                                    'Problemi di autenticazione ',  // message
+                                    alertDismissed,         // callback
+                                    'Attenzione!',            // title
+                                    'Chiudi'                  // buttonName
+                                );
+
+                            },
+                        });
+
+                        $("#div_spinner_login").hide();
+                        $("#div_select_struttura").show();
+                        $("#div_select_idente").show();
+                      
+                }
+                else {
+
+                    function alertDismissed() {
+                        location.reload();
+                    }
+
+                    navigator.notification.alert(
+                        'Operatore non presente per l\'ente selezionato ' + realms,  // message
+                        alertDismissed,         // callback
+                        'Attenzione',            // title
+                        'Chiudi'                  // buttonName
+                    );
+                    $("#div_spinner_login").hide();
+
+                }
+            }).catch(err => {
+                console.log(err)
+            });
+          
+
+    }
+
+    function getSTRUTTURE(idente) {
+        //alert(idente)
+        $('#idstruttura').html('');
+        $('#idservizio').html('');
+        var aSTRUTTURE = JSON.parse(localStorage.getItem(idente));
+        //alert(aSTRUTTURE)
+        $('#idstruttura').append('<option value="0">Seleziona la struttura </option>');
+
+        jQuery.each(aSTRUTTURE, function (index, struttura) {
+            var id_struttura = struttura.id
+            var struttura_label = struttura.label
+            //alert(id_struttura)
+            $('#idstruttura').append('<option value="' + id_struttura + '">' + struttura_label + '</option>');
+        });
+    }
+
+
+    function getSERVIZI(idstruttura) {
+
+        $('#idservizio').html('');
+
+        if (idstruttura != 0) {
+            var idente = $("#idente").val()
+
+            var label_struttura = $("#idstruttura option:selected").text()
+
+            localStorage.setItem("descrizione_struttura", label_struttura);
+            localStorage.setItem("idstruttura", idstruttura);
+            localStorage.setItem("idente", idente);
+
+            var access_token = localStorage.getItem("access_token");
+            var version_code = localStorage.getItem('version');
+            var version_code='1.0.0';
+            version_code = version_code.split(".").join("");
+    
+            var realms = localStorage.getItem('realm');
+
+            var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/tipi-intervento-servizi/ricerca/servizi/' + idstruttura
+
+            $.ajax({
+                url: url,
+                type: 'GET',
+                xhrFields: { withCredentials: true },
+                crossDomain: true,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                    xhr.setRequestHeader('idEnte', idente);
+                    xhr.setRequestHeader('idStruttura', idstruttura);
+                },
+                success: function (data, status, settings) {
+                    $('#idservizio').append('<option value="0">Seleziona il servizio </option>');
+
+                    jQuery.each(data, function (index, servizi) {
+                        $('#idservizio').append('<option value="' + servizi.id + '">' + servizi.denominazione + '</option>');
+                    });
+                    $("#div_select_servizi").show();
+
+
+                    /*
+                    alert("SUCCESS")
+                    alert(data)
+                    alert(status)
+                    alert(settings)
+                    */
+                    //window.location = "icaro_home.html";
+
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("ERRORE STRUTTURA: " + jqXHR.responseText)
+
+                }
+            });
+
+
+            
+        }
+        else {
+            function alertDismissed() {
+            }
+
+            navigator.notification.alert(
+                'Selezionare una struttura',  // message
+                alertDismissed,         // callback
+                'Attenzione',            // title
+                'Chiudi'                  // buttonName
+            );
+        }
+    }
+
+    
+    function continua() {
+        var idstruttura = $("#idstruttura").val()
+        var idservizio = $("#idservizio").val()
+        if (idservizio != 0 && idservizio != null) {
+            localStorage.setItem("idservizio", idservizio);
+            localStorage.setItem("idstruttura", idstruttura);
+
+            window.location = "icaro_home.html";
+
+        }
+        else {
+            function alertDismissed() {
+            }
+
+            navigator.notification.alert(
+                'Selezionare una tipologia di servizio',  // message
+                alertDismissed,         // callback
+                'Attenzione',            // title
+                'Chiudi'                  // buttonName
+            );
+        }
+    }
+
+</script>

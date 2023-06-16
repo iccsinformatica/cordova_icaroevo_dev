@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <!--meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;"-->
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="viewport"
+    content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, viewport-fit=cover, height=device-height">
+  <meta name="color-scheme" content="light dark">
+
+  <link rel="stylesheet" href="./css/index.css">
+  <link rel="stylesheet" href="./css/icaro.css">
+  <link rel="stylesheet" href="./css/bootstrap.min.css">
+  <link rel="stylesheet" href="./css/fontawesome-all.min.css">
+  <link rel="stylesheet" href="./css/fontawesome.css">
+  <link rel="stylesheet" href="./css/fontawesome.min.css">
+
+  <script src="./cordova.js"></script>
+  <script src="./js/index.js"></script>
+  <script src="./js/bootstrap.bundle.min.js"></script>
+  <script src="./js/jquery.min.js"></script>
+  <script src="./js/icaro.js"></script>
+
+  <style>
+    .center {
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      -ms-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+    }
+  </style>
+
+  <title>Icaro Evo</title>
+</head>
+
+<body>
+  <div class="div_header" id="div_header_small"></div>
+
+  <div style="position: relative;" id="back" name="back">
+    <img src="./img/freccia_back.svg" onclick="back()">
+  </div>
+
+  <div id="div_container" name="div_container">
+
+    <div class="fade-in-image" style="padding-left: 10%; padding-right: 10%; margin-top: 10%;" id="div_gruppi"
+      name="div_gruppi">
+      <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" id="idgruppo" name="idgruppo"
+        onchange="get_TIPIPRESTAZIONE(this.value)">
+        <option value="0" selected>Seleziona il gruppo</option>
+      </select>
+    </div>
+
+    <div class="fade-in-image" style="padding-left: 10%; padding-right: 10%; margin-top: 10%;" id="div_tipiprestazione"
+      name="div_tipiprestazione">
+      <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" id="idtipoprestazione"
+        name="idtipoprestazione" onchange="get_button_continua()">
+      </select>
+    </div>
+    <center>
+      <div style="padding-left: 10%; padding-right: 10%; margin-top: 10%;" id="div_continua" name="div_continua">
+        <div style="padding-right: 10%; padding-left: 10%;">
+          <div class="row row_button" style="margin-top: 10%;">
+            <div class="col-12 pl-1 pr-1">
+              <div class="btn btn-outline-primary" onclick="continua()"><b>Continua</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </center>
+
+  </div>
+</body>
+
+</html>
+<script>
+
+  var oggi = getDATA();
+
+  let searchParams = new URLSearchParams(window.location.search)
+  var idIntervento = searchParams.get('_idintervento')
+  var codice = searchParams.get('codice')
+  var idstruttura = localStorage.getItem("idstruttura");
+  var idente = localStorage.getItem('idente');
+  var realms = localStorage.getItem('realm');
+
+  var access_token = localStorage.getItem("access_token");
+  //var version_code = localStorage.getItem('version');
+  //version_code = version_code.split(".").join("");
+
+  document.addEventListener("deviceready", onDeviceReady, false);
+
+  function onDeviceReady() {
+    getHeader();
+    
+    refresh_token()
+    $("#div_continua").hide();
+    $("#div_tipiprestazione").hide();
+
+
+    //$('#div_container').append('<div style="margin-top:50%;" id="div_spinner" class="lds-ripple"><div></div><div></div></div>')
+
+    //$('#div_container').append('<div class="loading" id="div_spinner"><div class="loader"></div></div>')
+    //$("#div_container").append('<div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-left: 50%; margin-top: 50%;"><span class="visually-hidden">Caricamento in corso...</span></div>');
+   
+    var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/gruppi-prestazione/ricerca/' + idIntervento;
+      
+  
+    $.ajax({
+      url: url,
+      type: 'GET',
+      xhrFields: { withCredentials: true },
+      crossDomain: true,
+      dataType: 'json',
+      beforeSend: function (xhr) {
+          xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+          xhr.setRequestHeader('idEnte', idente);
+          xhr.setRequestHeader('idStruttura', idstruttura);
+      },
+      success: function (result, textStatus, jqXHR) {
+
+        $.each(result, function (index, element) {
+          
+          $('#idgruppo').append('<option value="' + element.id + '">' + capitalizeFirstLetter(element.descrizione) + '</option>');
+        });
+
+        //$("#div_spinner").hide();
+
+      },
+      error: function (xhr, status, error) {
+        //alert(xhr.responseText)
+
+        if (xhr.status == 401) {
+          $("#div_spinner").hide();
+          function alertDismissed() {
+            window.location = "icaro_login.html";
+          }
+
+          navigator.notification.alert(
+            'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+            alertDismissed,         // callback
+            'Attenzione',            // title
+            'Ok'                  // buttonName
+          );
+        }
+      }
+    });
+
+
+  }
+
+  function back() {
+    window.location = "icaro_ordini_servizio_scelta.html";
+  }
+
+  function get_TIPIPRESTAZIONE(idgruppo) {
+
+    var select = $('#idtipoprestazione');
+    select.html('');
+    var realms = localStorage.getItem('realm');
+
+    if (idgruppo != '') {
+      $("#div_tipiprestazione").show();
+
+      //var version_code = localStorage.getItem('version');
+      //version_code = version_code.split(".").join("");
+
+          var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/gruppi-prestazioni-tipi/ricerca/' + idgruppo;
+
+          $.ajax({
+            url: url,
+            type: 'GET',
+            xhrFields: { withCredentials: true },
+            crossDomain: true,
+            dataType: 'json',
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                xhr.setRequestHeader('idEnte', idente);
+                xhr.setRequestHeader('idStruttura', idstruttura);
+            },
+            success: function (result, textStatus, jqXHR) {
+              var content = result.content
+              $('#idtipoprestazione').append('<option value="0">Seleziona il tipo di prestazione</option>');
+
+              $.each(content, function (index, element) {
+                $('#idtipoprestazione').append('<option value="' + element.idTipoPrestazione + '">' + capitalizeFirstLetter(element.codice + ' - ' + element.descrizione) + '</option>');
+              });
+
+
+
+            },
+            error: function (xhr, status, error) {
+              //alert(xhr.responseText)
+
+              if (xhr.status == 401) {
+                $("#div_spinner").hide();
+                function alertDismissed() {
+                  window.location = "icaro_login.html";
+                }
+
+                navigator.notification.alert(
+                  'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                  alertDismissed,         // callback
+                  'Attenzione',            // title
+                  'Ok'                  // buttonName
+                );
+              }
+              else
+                alert("ACCESSO NEGATO: "+xhr.responseText)
+            }
+          });
+
+          //$('#idtipoprestazione').val('');
+       
+    }
+  }
+
+  function get_button_continua() {
+    var idtipoprestazione = $("#idtipoprestazione").val()
+    if (idtipoprestazione != 0)
+      $("#div_continua").show();
+    else
+      $("#div_continua").hide();
+  }
+
+  function continua() {
+    var idtipoprestazione = $("#idtipoprestazione").val()
+    var descr_tipoprestazione = $("#idtipoprestazione option:selected").text()
+
+    var idgruppo = $("#idgruppo").val()
+
+    if (idtipoprestazione != 0) {
+      window.location = "icaro_prestazione_dettaglio.html?idgruppo=" + idgruppo + "&idtipoprestazione=" + idtipoprestazione + "&descr_tipoprestazione=" + descr_tipoprestazione + "&idintervento=" + idIntervento + "&codice=" + codice;
+    }
+    else {
+      function alertDismissed() {
+      }
+
+      navigator.notification.alert(
+        'Selezionare un tipo di prestazione da eseguire',  // message
+        alertDismissed,         // callback
+        'Attenzione',            // title
+        'Chiudi'                  // buttonName
+      );
+    }
+  }
+
+</script>

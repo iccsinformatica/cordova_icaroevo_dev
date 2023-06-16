@@ -1,0 +1,11 @@
+{
+  "background_color": "#FFF",
+  "display": "standalone",
+  "name": "Icaro Dev",
+  "short_name": "Icaro Dev",
+  "version": "com.iccs.app.icaro.dev",
+  "description": "Icaro App",
+  "author": "Maggioli spa",
+  "icons": [],
+  "start_url": "index.html"
+}

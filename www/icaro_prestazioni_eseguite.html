@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <!--meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;"-->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport"
+        content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, viewport-fit=cover, height=device-height">
+    <meta name="color-scheme" content="light dark">
+
+    <link rel="stylesheet" href="./css/index.css">
+    <link rel="stylesheet" href="./css/icaro.css">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="./css/fontawesome.css">
+    <link rel="stylesheet" href="./css/fontawesome.min.css">
+
+    <script src="./cordova.js"></script>
+    <script src="./js/index.js"></script>
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/icaro.js"></script>
+
+    <title>Icaro Evo</title>
+</head>
+
+<body>
+
+    <div class="div_header" id="div_header_small"></div>
+
+
+    <div style="position: relative;" id="back" name="back">
+        <img src="./img/freccia_back.svg" onclick="back()">
+    </div>
+    <div style="padding-left: 3%; padding-right: 3%;" id="div_container">
+        <div class="d-flex flex-row" style="margin-top: 5%;">
+            <div id="div_mese_precedente" name="div_mese_precedente" style="width: 25%; text-align: left;"></div>
+            <div id="div_mese_corrente" name="div_mese_corrente" style="width: 50%; text-align: center;"></div>
+            <div id="div_mese_successivo" name="div_mese_successivo" style="width: 25%; text-align: right;"></div>
+        </div>
+
+        <table style="font-size: x-small;" id="table_prestazioni" name="table_prestazioni"
+            class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Nominativo</th>
+                    <th scope="col">Servizio</th>
+                    <th scope="col">Data</th>
+                    <th scope="col">Ora inizio</th>
+                    <th scope="col">Ora finie</th>
+                </tr>
+            </thead>
+            <tbody id="tbody_prestazioni" name="tbody_prestazioni">
+
+            </tbody>
+        </table>
+
+        <div id="div_loader"></div>
+
+    </div>
+
+
+
+</body>
+
+</html>
+<script>
+
+    $(document).ready(function () {
+        /*
+        $('#table_prestazioni').DataTable({
+            "scrollY": "300px",
+            "scrollCollapse": true,
+        });
+        $('.dataTables_length').addClass('bs-select');
+        */
+
+    });
+
+
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    function onDeviceReady() {
+        getHeader();
+        refresh_token()
+        //var date_forcall = get_currentDATAFORCALL();
+        var mese = get_current_MONTH();
+        var mese_precedente = mese - 1;
+        var mese_successivo = mese + 1;
+        var anno_corrente = get_current_YEAR();
+        switch_table(mese_precedente, mese, mese_successivo, anno_corrente);
+    }
+
+    function switch_table(mese_precedente, mese, mese_successivo, anno) {
+        var aPRESTAZIONI = [];
+        $('#div_mese_precedente').html('');
+        $('#div_mese_corrente').html('');
+        $('#div_mese_successivo').html('');
+        $("#tbody_prestazioni").html('')
+        $('#div_loader').html('');
+
+        var access_token = localStorage.getItem("access_token");
+        var idservizio = localStorage.getItem('idservizio');
+        var username = localStorage.getItem("username");
+        var realms = localStorage.getItem('realm');
+        var idstruttura = localStorage.getItem("idstruttura");
+        var idente = localStorage.getItem('idente');
+
+
+        $('#div_loader').append('<center><div id="div_spinner" class="lds-ripple"><div></div><div></div></div></center>')
+        //$("#table_prestazioni").append('<div id="div_spinner" class="spinner-grow text-primary" role="status" style="top: 50%; left: 50%;" ><span class="visually-hidden">Caricamento in corso...</span></div>');
+
+        var descrizione_mese_precedente = getDESCR_MONTH(mese_precedente);
+        var descrizione_mese_corrente = getDESCR_MONTH(mese);
+        var descrizione_mese_successivo = getDESCR_MONTH(mese_successivo);
+        var anno_precedente = anno
+        var anno_successivo = anno
+        var meseprepre = mese_precedente - 1;
+        if (meseprepre == 0)
+            meseprepre = 12
+
+        if (meseprepre == 11 && mese_precedente == 12 && mese == 1)
+            anno_precedente = anno - 1;
+
+        var mesesucsuc = mese_successivo + 1;
+
+        if (mesesucsuc == 13)
+            mesesucsuc = 1
+
+        if (mesesucsuc == 2 && mese_successivo == 1 && mese == 12)
+            anno_successivo = anno + 1;
+
+        /*
+            console.log('<h6><b id="mese_precedente" name="mese_precedente" style="color:#00379E;" onclick=switch_table(' + meseprepre + ',' + mese_precedente + ',' + mese + ',' + anno_precedente + ')>' + descrizione_mese_precedente + '</b></h6>')
+
+            console.log('<h5><b id="mese_corrente" name="mese_corrente" >' + descrizione_mese_corrente + ' ' + anno + '</b></h5>')
+
+            console.log('<h6><b id="mese_successivo" name="mese_successivo" style="color:#00379E;" onclick=switch_table(' + mese + ',' + mese_successivo + ',' + mesesucsuc + ',' + anno_successivo + ')>' + descrizione_mese_successivo + '</b></h6>')
+        */
+
+        $("#div_mese_precedente").append('<h6><b id="mese_precedente" name="mese_precedente" style="color:#70B3FF;" onclick=switch_table(' + meseprepre + ',' + mese_precedente + ',' + mese + ',' + anno_precedente + ')>' + descrizione_mese_precedente + '</b></h6>');
+        $("#div_mese_corrente").append('<h5><b id="mese_corrente" name="mese_corrente" >' + descrizione_mese_corrente + ' ' + anno + '</b></h5>');
+
+        $("#div_mese_successivo").append('<h6><b id="mese_successivo" name="mese_successivo" style="color:#70B3FF;" onclick=switch_table(' + mese + ',' + mese_successivo + ',' + mesesucsuc + ',' + anno_successivo + ')>' + descrizione_mese_successivo + '</b></h6>');
+
+        var date_forcall = get_DATAFORCALL(mese, anno);
+        //var oggi = anno + '-' + mese + '-01'
+        var aINTERVENTI = [];
+        var counter = 0;
+        //var version_code = localStorage.getItem('version');
+        //version_code = version_code.split(".").join("");
+
+
+        var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni-operatori/ricerca?cognome.equals=' + username;
+
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            xhrFields: { withCredentials: true },
+            crossDomain: true,
+            dataType: 'json',
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                xhr.setRequestHeader('idEnte', idente);
+                xhr.setRequestHeader('idStruttura', idstruttura);
+            },
+            success: function (res, textStatus, jqXHR) {
+                if (res != undefined) {
+
+                    var content = res.content
+                    $.each(content, function (index, element) {
+                        var idPrestazione = element.idPrestazione
+                        //alert(idPrestazione)
+                        aPRESTAZIONI.push(idPrestazione);
+                    })
+
+                    var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/erogazioni/ricerca?meseRiferimento=' + date_forcall + '&servizioId.equals=' + idservizio;
+
+                    $.ajax({
+                        url: url,
+                        type: 'GET',
+                        xhrFields: { withCredentials: true },
+                        crossDomain: true,
+                        dataType: 'json',
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                            xhr.setRequestHeader('idEnte', idente);
+                            xhr.setRequestHeader('idStruttura', idstruttura);
+                        },
+                        success: function (res, textStatus, jqXHR) {
+
+                            var content = res.content
+
+                            $.each(content, function (index, element) {
+
+                                var idintervento_result = element.id
+                                //alert(idintervento_result)
+                                if ($.inArray(idintervento_result, aINTERVENTI) == -1) {
+                                    aINTERVENTI.push(idintervento_result);
+                                    //if (idIntervento == idintervento_result) {
+                                    var codiceServizio = element.codiceServizio
+                                    var idTipoIntervento = element.idTipoIntervento
+                                    var tipoIntervento = element.tipoIntervento
+                                    var dataInizio = element.dataInizio
+                                    var dataFine = element.dataFine
+                                    //if (dataInizio <= oggi && dataFine >= oggi) {
+                                    var soggetto = element.soggetto
+                                    var aSOGGETTO = element.soggetto.split('(');
+                                    var nominativo = aSOGGETTO[0]
+                                    var editabile = element.editabile
+                                    var idErogatore = element.idErogatore
+                                    var denominazioneErogatore = element.denominazioneErogatore
+                                    var certificazioneAccessi = element.certificazioneAccessi
+                                    var aEROGAZIONI = element.erogazioni
+
+                                    var flag_prestazione_attiva = false;
+
+                                    $.each(aEROGAZIONI, function (index, erogazione) {
+                                        var data_prestazione = index;
+                                        //Prendo tutte le prestazioni fatte quel giorno
+
+                                        var idaccesso = erogazione.idAccesso
+                                        var statoValidazione = erogazione.statoValidazione
+                                        var aPRESTAZIONI_INTERVENTO = erogazione.prestazioni
+                                        $.each(aPRESTAZIONI_INTERVENTO, function (index, prestazione) {
+                                            var idPrestazione = prestazione.idPrestazione
+
+                                            if ($.inArray(idPrestazione, aPRESTAZIONI) !== -1) {
+                                                var labelGruppoPrestazioni = prestazione.labelGruppoPrestazioni
+                                                var coloreGruppoPrestazioni = prestazione.coloreGruppoPrestazioni
+                                                var tipoPrestazione = prestazione.tipoPrestazione
+                                                //alert(tipoPrestazione)
+                                                var quantita = prestazione.quantita
+                                                var oraInizio = prestazione.oraInizio
+                                                var oraFine = prestazione.oraFine
+                                                var color = ""
+
+                                                if (oraInizio != null) {
+                                                    if ((oraInizio != null && oraFine == null)) //prestazione iniziata e non finita
+                                                        color = '#F2C894'
+                                                    else if ((oraInizio != null && oraFine != null)) //prestazione finita
+                                                        color = '#D2FDBB'
+
+                                                    if (oraFine == null)
+                                                        oraFine = '';
+
+                                                    counter++
+                                                    $("#tbody_prestazioni").append(' <tr style="background-color:' + color + ';">\
+                                                                <th scope="row">'+ counter + '</th>\
+                                                                <td>'+ nominativo + '</td>\
+                                                                <td>'+ capitalizeFirstLetter(tipoPrestazione) + '</td>\
+                                                                <td>'+ get_formatDATE_standard(data_prestazione) + '</td>\
+                                                                <td>'+ oraInizio + '</td>\
+                                                                <td>'+ oraFine + '</td>\
+                                                            </tr>');
+
+
+                                                }
+                                            }
+                                        })
+                                    });
+                                    //};
+                                }
+                            });
+                            //$("#div_spinner").hide();
+                            $('#div_loader').html('');
+
+                            if (counter == 0) {
+                                $("#div_loader").append('<center><div>\
+                                            Nessuna prestazione trovata\
+                                        </div></center>');
+                            }
+
+
+                        },
+                        error: function (xhr, status, error) {
+                            //alert("ACCESSO NEGATO: "+ error)
+
+                            if (xhr.status == 401) {
+
+                                function alertDismissed() {
+                                    localStorage.removeItem('access_token');
+                                    window.location = "icaro_login.html";
+                                }
+
+                                navigator.notification.alert(
+                                    'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                                    alertDismissed,         // callback
+                                    'Attenzione',            // title
+                                    'Ok'                  // buttonName
+                                );
+                            }
+                            else
+                                alert(xhr.responseText)
+
+                            $("#div_spinner").hide();
+                        }
+                    });
+                }
+
+                if (counter == 0) {
+                    $('#div_loader').html('');
+                    $("#div_loader").append('<center><div>\
+                                Nessuna prestazione trovata\
+                            </div></center>');
+                }
+            },
+            error: function (xhr, status, error) {
+                if (xhr.status == 401) {
+
+                    function alertDismissed() {
+                        localStorage.removeItem('access_token');
+                        window.location = "icaro_login.html";
+                    }
+
+                    navigator.notification.alert(
+                        'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                        alertDismissed,         // callback
+                        'Attenzione',            // title
+                        'Ok'                  // buttonName
+                    );
+                }
+                else
+                    alert(xhr.responseText)
+
+                $("#div_spinner").hide();
+            }
+        });
+
+    }
+
+    function back() {
+        window.location = "icaro_home.html";
+    }
+
+
+</script>

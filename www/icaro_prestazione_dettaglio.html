@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <!--meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;"-->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport"
+        content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, viewport-fit=cover, height=device-height">
+    <meta name="color-scheme" content="light dark">
+
+    <link rel="stylesheet" href="./css/index.css">
+    <link rel="stylesheet" href="./css/icaro.css">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="./css/fontawesome.css">
+    <link rel="stylesheet" href="./css/fontawesome.min.css">
+
+    <script src="./cordova.js"></script>
+    <script src="./js/index.js"></script>
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/icaro.js"></script>
+
+    <style>
+        .center {
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            -ms-transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);
+        }
+    </style>
+
+    <title>Icaro Evo</title>
+</head>
+
+<body>
+    <div class="div_header" id="div_header_small"></div>
+
+    <div class="d-flex flex-row" style="position: relative;" id="back" name="back">
+        <img src="./img/freccia_back.svg" onclick="back()">
+    </div>
+
+    <div id="div_container" name="div_container">
+        <div class="fade-in-image" id="div_prestazione_dettaglio" name="div_prestazione_dettaglio">
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
+<script>
+
+
+    let searchParams = new URLSearchParams(window.location.search)
+    var idgruppo = searchParams.get('idgruppo')
+    var idtipoprestazione = searchParams.get('idtipoprestazione')
+    var descr_tipoprestazione = searchParams.get('descr_tipoprestazione')
+    var idstruttura = localStorage.getItem("idstruttura");
+    var idente = localStorage.getItem('idente');
+    var idIntervento = searchParams.get('idintervento')
+    var codice_intervento = searchParams.get('codice')
+    var idservizio = localStorage.getItem('idservizio');
+    var access_token = localStorage.getItem("access_token");
+    var realms = localStorage.getItem('realm');
+
+    var oggi = getDATA();
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    function onDeviceReady() {
+        getHeader();
+        refresh_token()
+
+        var date_forcall = get_currentDATAFORCALL();
+        $('#div_prestazione_dettaglio').append('<center><div id="div_spinner" class="lds-ripple"><div></div><div></div></div></center>')
+
+        //$("#div_container").append('<div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-left: 50%; margin-top: 50%;"><span class="visually-hidden">Caricamento in corso...</span></div>');
+        //$("#div_spinner").hide();
+        var aINTERVENTI = [];
+        //Con la prima chiamata prendo l'id del soggetto
+
+        //var version_code = localStorage.getItem('version');
+        //version_code = version_code.split(".").join("");
+        
+        var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/interventi/ricerca?id.equals='+ idIntervento;
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            xhrFields: { withCredentials: true },
+            crossDomain: true,
+            dataType: 'json',
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                xhr.setRequestHeader('idEnte', idente);
+                xhr.setRequestHeader('idStruttura', idstruttura);
+            },
+            success: function (res, textStatus, jqXHR) {
+                if (res != undefined) {
+                    var content = res.content
+
+                    $.each(content, function (index, element) {
+                        var soggetto = element.titolare.soggetto
+
+                        var id_soggetto = soggetto.id
+                        var idIcaro = soggetto.idIcaro
+                        var codiceFiscale = soggetto.codiceFiscale
+                        var nome = soggetto.nome
+                        var cognome = soggetto.cognome
+                        var sesso = soggetto.sesso
+                        var dataNascita = soggetto.dataNascita
+                        var codiceIstatNazioneNascita = soggetto.codiceIstatNazioneNascita
+                        var luogoNascita = soggetto.luogoNascita
+                        var indirizzoResidenza = soggetto.indirizzoResidenza
+
+                        var indirizzoCompleto = indirizzoResidenza.indirizzoCompleto
+                        var comune = indirizzoResidenza.comune
+                        var provincia = indirizzoResidenza.provincia
+                        //Prendo tutti i campi necessari del soggetto
+
+                        
+                        var url = "https://gateway.icaro-dev.maggioli.cloud/services/soggettiservice/api/soggetti/ricerca?id.equals=" + id_soggetto;
+
+                        $.ajax({
+                            url: url,
+                            type: 'GET',
+                            xhrFields: { withCredentials: true },
+                            crossDomain: true,
+                            dataType: 'json',
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                                xhr.setRequestHeader('idEnte', idente);
+                                xhr.setRequestHeader('idStruttura', idstruttura);
+                            },
+                            success: function (result, textStatus, jqXHR) {
+                                var content = result.content
+                                //alert(JSON.stringify(content))
+                                $.each(content, function (index, element) {
+                                    var telefono1 = element.telefono1
+                                    var telefono2 = element.telefono2
+                                    var telefono3 = element.telefono3
+
+                                    if (telefono1 == null)
+                                        telefono1 = '';
+                                    else
+                                        telefono1 = '<li>' + telefono1 + '</li>';
+
+                                    if (telefono2 == null)
+                                        telefono2 = '';
+                                    else
+                                        telefono2 = '<li>' + telefono2 + '</li>';
+
+                                    if (telefono3 == null)
+                                        telefono3 = '';
+                                    else
+                                        telefono3 = '<li>' + telefono3 + '</li>';
+
+                                    var email = element.email
+
+                                    if (email == null)
+                                        email = '';
+
+                                    var note = element.note
+                                    if (note == null)
+                                        note = '';
+
+                                    var JSON_tagNfc = element.tagNfc
+                                    var tagNfc = '';
+                                    if (JSON_tagNfc != null)
+                                        tagNfc = JSON_tagNfc.tagNfc
+                                    //Prendo tutte le prestazioni effettuate per quell'intervento in quel range di date
+                                    
+                                    var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/erogazioni/ricerca?meseRiferimento=' + date_forcall + '&servizioId.equals=' + idservizio + '&progressivoAnnuo.contains=' + codice_intervento;
+
+                                    $.ajax({
+                                        url: url,
+                                        type: 'GET',
+                                        xhrFields: { withCredentials: true },
+                                        crossDomain: true,
+                                        dataType: 'json',
+                                        beforeSend: function (xhr) {
+                                            xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                                            xhr.setRequestHeader('idEnte', idente);
+                                            xhr.setRequestHeader('idStruttura', idstruttura);
+                                        },
+                                        success: function (res, textStatus, jqXHR) {
+
+                                            var content = res.content
+                                            //alert(JSON.stringify(content))
+                                            $.each(content, function (index, element) {
+
+                                                var idintervento_result = element.id
+
+                                                if ($.inArray(idintervento_result, aINTERVENTI) == -1) {
+                                                    aINTERVENTI.push(idintervento_result);
+                                                    //if (idIntervento == idintervento_result) {
+                                                    var codiceServizio = element.codiceServizio
+                                                    var idTipoIntervento = element.idTipoIntervento
+                                                    var tipoIntervento = element.tipoIntervento
+                                                    var dataInizio = element.dataInizio
+                                                    var dataFine = element.dataFine
+                                                    if (dataInizio <= oggi && dataFine >= oggi) {
+                                                        var soggetto = element.soggetto
+
+                                                        var editabile = element.editabile
+                                                        var idErogatore = element.idErogatore
+                                                        var denominazioneErogatore = element.denominazioneErogatore
+                                                        var certificazioneAccessi = element.certificazioneAccessi
+                                                        var aEROGAZIONI = element.erogazioni
+
+                                                        var flag_prestazione_attiva = false;
+
+                                                        $.each(aEROGAZIONI, function (index, erogazione) {
+                                                            var data_prestazione = index;
+                                                            //Prendo tutte le prestazioni fatte quel giorno
+
+                                                            if (oggi == data_prestazione) {
+
+                                                                var idaccesso = erogazione.idAccesso
+                                                                var statoValidazione = erogazione.statoValidazione
+                                                                var aPRESTAZIONI = erogazione.prestazioni
+                                                                $.each(aPRESTAZIONI, function (index, prestazione) {
+                                                                    var idPrestazione = prestazione.idPrestazione
+                                                                    var labelGruppoPrestazioni = prestazione.labelGruppoPrestazioni
+                                                                    var coloreGruppoPrestazioni = prestazione.coloreGruppoPrestazioni
+                                                                    var tipoPrestazione = prestazione.tipoPrestazione
+                                                                    //alert(tipoPrestazione)
+                                                                    //Contollo se quella che sto cercando è dello stesso tipoprestazione, in mancanza dell'idtipoprestazione faccio la ricerca tramite stringa, chiedere se è possibile passarmi l'idtipoprestazione all'interno dell prestazione stessa
+                                                                    if (capitalizeFirstLetter(tipoPrestazione) == descr_tipoprestazione) {
+                                                                        var quantita = prestazione.quantita
+                                                                        var oraInizio = prestazione.oraInizio
+                                                                        var oraFine = prestazione.oraFine
+
+                                                                        if ((oraInizio != null && oraFine == null) || (oraInizio != null && oraFine != null)) {
+                                                                            var erogata = prestazione.erogata
+                                                                            var fatturabile = prestazione.fatturabile
+                                                                            var durata = prestazione.durata
+
+                                                                            var class_div = '';
+                                                                            var descr_prestazione = '';
+                                                                            var h6hour = '';
+
+                                                                            if (oraInizio == null || oraInizio == "null") {
+                                                                                class_div = "noneseguita";
+                                                                                descr_prestazione = 'Prestazione non eseguita';
+
+                                                                            }
+                                                                            else if (oraFine == null || oraFine == "null") {
+                                                                                class_div = "eseguitaparziale";
+                                                                                descr_prestazione = 'Prestazione eseguita parziale';
+                                                                                h6hour = '<h6 class="font""><b>Ora inizio: </b>' + oraInizio + '<br></h6>'
+
+                                                                            }
+                                                                            else {
+                                                                                class_div = "eseguita";
+                                                                                descr_prestazione = 'Prestazione eseguita';
+                                                                                h6hour = '<h6 class="font" ><b>Ora inizio: </b>' + oraInizio + '<br><b>Ora Fine: </b>' + oraFine + '</h6>'
+                                                                            }
+
+                                                                            $("#div_prestazione_dettaglio").append('<div class=" container_div ' + class_div + '" style="padding:5%;">\
+                                                                        <div>\
+                                                                            <h6 class="font" ><b>Nominativo: </b>'+ cognome + ' ' + nome + '</h6>\
+                                                                            <h6 class="font" ><b>Indirizzo: </b>'+ indirizzoCompleto + ')</h6>\
+                                                                            <h6 class="font" ><b>Comune: </b>'+ comune + ' (' + provincia + ')</h6>\
+                                                                            <h6 class="font" ><b>Telefono </b>: <ul>'+ telefono1 + ' ' + telefono2 + ' ' + telefono3 + '</ul></h6>\
+                                                                            <h6 class="font" ><b>Email: </b>'+ email + '</h6>\
+                                                                            <input type="hidden" id="idaccesso" name="idaccesso" value="'+ idaccesso + '"/>\
+                                                                            <h6 class="font"  ><b>Tipo: </b>'+ tipoPrestazione + '</h6>\
+                                                                            <hr>\
+                                                                            <h6 class="font" ><b>Note: </b>'+ note + '</h6>\
+                                                                            <hr>\
+                                                                            <h6 class="font" ><b>Data: </b>'+ get_formatDATE_standard(data_prestazione) + '</h6>\
+                                                                            '+ h6hour + '\
+                                                                        </div>\
+                                                                    </div>');
+                                                                            /*
+                                                                                if (oraInizio == null) {
+                                                                                    $("#div_prestazione_dettaglio").append('<div class="container_div_home d-flex flex-row" style="margin-top:10%;">\
+                                                                                <div>\
+                                                                                    <img src="./img/calendar.svg">\
+                                                                                </div>\
+                                                                                <div style="margin-left:10%;" onclick="readNFC(\''+ idPrestazione + '\',\'' + oraInizio + '\')">\
+                                                                                    <h6 class="font-menu"><b>Iniza Prestazione</b></h6>\
+                                                                                </div>\
+                                                                                </div>\
+                                                                                <hr>');
+                                                                                }
+                                                                                else 
+                                                                            */
+                                                                            if (oraFine == null) {
+                                                                                $("#div_prestazione_dettaglio").append('<div class="container_div_prestazione d-flex flex-row" style="margin-top:5%;" onclick="readNFC(\'' + idPrestazione + '\',\'' + oraInizio + '\',\'' + tagNfc + '\')">\
+                                                                                <div>\
+                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play" viewBox="0 0 16 16">\
+                                                                                        <path d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>\
+                                                                                    </svg>\
+                                                                                    <b>Termina Prestazione</b>\
+                                                                                </div>\
+                                                                                </div>\
+                                                                                ');
+                                                                            }
+                                                                            if (oraFine == null) {
+                                                                                $("#div_prestazione_dettaglio").append('<div class="container_div_elimina d-flex flex-row" onclick="eliminaConfirm(\'' + idPrestazione + '\')">\
+                                                                                <div>\
+                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\
+                                                                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>\
+                                                                                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>\
+                                                                                    </svg>\
+                                                                                    <b>Elimina Prestazione</b>\
+                                                                                </div>\
+                                                                                </div>\
+                                                                                ');
+                                                                            }
+                                                                            flag_prestazione_attiva = true;
+                                                                        }
+                                                                    }
+                                                                });
+                                                            }
+                                                        });
+
+                                                        if (!flag_prestazione_attiva) {
+                                                            $("#div_prestazione_dettaglio").append('<div class=" container_div_prestazione noneseguita" style="padding:5%;">\
+                                                            <div>\
+                                                            <h6 class="font"><b>Nominativo: </b>'+ cognome + ' ' + nome + '</h6>\
+                                                            <h6 class="font"><b>Indirizzo: </b>'+ indirizzoCompleto + ')</h6>\
+                                                            <h6 class="font"><b>Comune: </b>'+ comune + ' (' + provincia + ')</h6>\
+                                                            <h6 class="font"><b>Telefono </b>: '+ telefono1 + ' ' + telefono2 + ' ' + telefono3 + '</h6>\
+                                                            <h6 class="font"><b>Email: </b>'+ email + '</h6>\
+                                                            <h6 class="font"><b>Tipo: </b>'+ descr_tipoprestazione + '</h6>\
+                                                            <hr>\
+                                                            <h6 class="font"><b>Note: </b>'+ note + '</h6>\
+                                                            <hr>\
+                                                            </div>\
+                                                        </div>');
+
+                                                            $("#div_prestazione_dettaglio").append('<div class="container_div_home d-flex flex-row" onclick="readNFC(' + null + ',' + null + ',\'' + tagNfc + '\')">\
+                                                            <div>\
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play" viewBox="0 0 16 16">\
+                                                                    <path d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>\
+                                                                </svg>\
+                                                                <b>Iniza Prestazione</b>\
+                                                            </div>\
+                                                        </div>\
+                                                    ');
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                            $('#div_spinner').hide()
+
+                                        },
+                                        error: function (xhr, status, error) {
+                                            if (xhr.status == 401) {
+                                                $("#div_spinner").hide();
+                                                function alertDismissed() {
+                                                    window.location = "icaro_login.html";
+                                                }
+
+                                                navigator.notification.alert(
+                                                    'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                                                    alertDismissed,         // callback
+                                                    'Attenzione',            // title
+                                                    'Ok'                  // buttonName
+                                                );
+                                            }
+                                            else
+                                                alert(xhr.responseText)
+                                        }
+                                    });
+
+                                });
+
+
+                            },
+                            error: function (xhr, status, error) {
+                                if (xhr.status == 401) {
+                                    $("#div_spinner").hide();
+                                    function alertDismissed() {
+                                        window.location = "icaro_login.html";
+                                    }
+
+                                    navigator.notification.alert(
+                                        'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                                        alertDismissed,         // callback
+                                        'Attenzione',            // title
+                                        'Ok'                  // buttonName
+                                    );
+                                }
+                                else
+                                    alert(xhr.responseText)
+                            }
+
+                        });
+                    });
+                }
+                else {
+                    alert("Nessun intervento attivo ad oggi - Redirect alla pagina Home")
+                    window.location = "icaro_home.html";
+
+                }
+            }
+        });
+
+    
+    }
+
+
+
+    function back() {
+        window.location = "icaro_ordine_servizio_dettaglio.html?_idintervento=" + idIntervento + "&codice=" + codice_intervento;
+    }
+
+    function readNFC(idPrestazione, ora_inizio, tagNfc_associato) {
+        window.nfc.enabled(
+            () => {
+                // NFC enabled
+                this.registerTagEvent(idPrestazione, ora_inizio, tagNfc_associato)
+
+            },
+            (error) => {
+                if (error === 'NFC_DISABLED') {
+                    // Trigger the phone settings to enable the NFC settings
+                    window.nfc.showSettings()
+                } else if (error === 'NO_NFC') {
+                    navigator.notification.alert('Cannot scan NFC', () => { }, 'No NFC', 'OK')
+                }
+            }
+        )
+
+    }
+    function registerTagEvent(idPrestazione, ora_inizio, tagNfc_associato) {
+        window.nfc.addNdefListener(
+            this.onSuccess(idPrestazione, ora_inizio, tagNfc_associato),
+            () => {
+                navigator.notification.activityStart('', 'Lettura tag nfc in corso, appoggiare la tessera NFC nel retro del dispositivo');
+            },
+            (error) => {
+                console.log('failure registering ndef listener', error)
+            }
+        )
+    }
+
+    function onFailure() {
+        nfc.showSettings();
+    }
+
+    function onSuccess(idPrestazione, ora_inizio, tagNfc_associato) {
+        //$('#div_container').append('<center><div style="position: absolute;display: block;" id="div_spinner" class="lds-ripple"><div></div><div></div></div></center>')
+
+        //$("#div_container").append('<div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-left: 50%; margin-top: 50%;"><span class="visually-hidden">Caricamento in corso...</span></div>');
+        navigator.notification.beep(1);
+        if (isiOS()) {
+            // Promise
+            nfc.scanTag().then(
+                tag => {
+                    console.log(JSON.stringify(tag))
+                    if (tag.id) {
+                        console.log(nfc.bytesToHexString(tag.id));
+                    }
+                },
+                err => console.log(err)
+            );
+
+            // Async Await
+            try {
+                let tag = nfc.scanTag();
+                console.log(JSON.stringify(tag));
+                if (tag.id) {
+                    console.log(nfc.bytesToHexString(tag.id));
+                }
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        else {
+
+            nfc.readerMode(nfc.FLAG_READER_NFC_A, nfcTag => readSuccess(nfcTag, idPrestazione, ora_inizio, tagNfc_associato), error => alert('NFC reader mode failed', error));
+
+        }
+
+    }
+
+    function readSuccess(nfcTag, idPrestazione, ora_inizio, tagNfc_associato) {
+        //controllare il tag
+        var tagId = nfc.bytesToHexString(nfcTag.id);
+        var realms = localStorage.getItem('realm');
+
+        if (tagNfc_associato == tagId) {
+            var ora = getTIME()
+            //alert(ora)
+            //return false;
+            //alert(ora_inizio)
+            var aIDPRESTAZIONI = [];
+            aIDPRESTAZIONI.push(idtipoprestazione)
+
+            //var version_code = localStorage.getItem('version');
+           // version_code = version_code.split(".").join("");
+
+            if (ora_inizio == null && idPrestazione == null) //prestazione nuova faccio una POST
+            {
+                //!!!!controllare se il soggetto corrisponde al soggetto del tag nfc!!!
+                var aIDPRESTAZIONI = [];
+                aIDPRESTAZIONI.push(idtipoprestazione)
+
+                var body = {
+                    'idIntervento': idIntervento,
+                    'idGruppoPrestazione': idgruppo,
+                    'listaIdTipiPrestazione': aIDPRESTAZIONI,
+                    'quantita': 1, //è il numero di prestazioni
+                    "oraInizio": ora,
+                    'erogata': true,
+                    'fatturabile': true,
+                    'dataAccesso': oggi
+                };
+                var aBODY = JSON.stringify(body);
+                //alert("POST: " + aBODY)
+                //return false;                           
+
+                var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni';
+
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    xhrFields: { withCredentials: true },
+                    data: aBODY,
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                        xhr.setRequestHeader('idEnte', idente);
+                        xhr.setRequestHeader('idStruttura', idstruttura);
+                    },
+                    success: function (data, status, settings) {
+
+                        var idprestazione = data.id;
+                        //alert("ID prestazione: " + idprestazione)
+                        var username = localStorage.getItem('username');
+
+                        var body_request = {
+                            'idPrestazione': idprestazione,
+                            'cognome': username,
+                            'nome': username,
+                        };
+                        var aBODYrequest = JSON.stringify(body_request);
+
+                        //alert("Body : " + aBODYrequest)
+                        
+                        var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni-operatori';
+
+                        $.ajax({
+                            url: url,
+                            type: "POST",
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            xhrFields: { withCredentials: true },
+                            data: aBODYrequest,
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                                xhr.setRequestHeader('idEnte', idente);
+                                xhr.setRequestHeader('idStruttura', idstruttura);
+                            },
+                            success: function (data, status, settings) {
+                                //$("#div_spinner").hide();
+                                //alert("associazione creata")
+                                var result = JSON.stringify(data);
+                                //alert("DATA: " + result)
+                                navigator.notification.activityStop();
+                                function alertDismissed() {
+                                    window.location = "icaro_prestazione_dettaglio.html?idgruppo=" + idgruppo + "&idtipoprestazione=" + idtipoprestazione + "&descr_tipoprestazione=" + descr_tipoprestazione + "&idintervento=" + idIntervento + "&codice=" + codice_intervento;
+                                }
+
+                                navigator.notification.alert(
+                                    'Timbratura avvenuta con successo',  // message
+                                    alertDismissed(),
+                                    "Success",
+                                    "Continua",
+                                );
+                            },
+                            error: function (jqXHR, textStatus, errorThrown) {
+                                navigator.notification.activityStop();
+                                if (jqXHR.status == 401) {
+                                    //$("#div_spinner").hide();
+                                    function alertDismissed_login() {
+                                        window.location = "icaro_login.html";
+                                    }
+
+                                    navigator.notification.alert(
+                                        'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                                        alertDismissed_login,         // callback
+                                        'Attenzione',            // title
+                                        'Ok'                  // buttonName
+                                    );
+                                }
+                                else
+                                    alert("ERRORE: " + jqXHR.responseText)
+                            }
+                        });
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        navigator.notification.activityStop();
+                        if (jqXHR.status == 401) {
+                            //$("#div_spinner").hide();
+                            function alertDismissed_login() {
+                                window.location = "icaro_login.html";
+                            }
+
+                            navigator.notification.alert(
+                                'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                                alertDismissed_login,         // callback
+                                'Attenzione',            // title
+                                'Ok'                  // buttonName
+                            );
+                        }
+                        else
+                            alert("ERRORE: " + jqXHR.responseText)
+                    }
+                });
+            
+            }
+            else {
+
+                var idaccesso = $('#idaccesso').val()
+
+                var body = {
+                    'id': idPrestazione,
+                    'version': 0,
+                    'idAccesso': idaccesso,
+                    "idGruppoPrestazione": idgruppo,
+                    'listaIdTipiPrestazione': aIDPRESTAZIONI,
+                    'quantita': 1, //è il numero di prestazioni
+                    'oraInizio': ora_inizio,
+                    'oraFine': ora,
+                    "erogata": true,
+                    "fatturabile": true
+                };
+                var aBODY = JSON.stringify(body);
+                //alert("PUT: " + aBODY)
+                //return false;
+               
+                var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni';
+
+                $.ajax({
+                            url: url,
+                            type: "PUT",
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            xhrFields: { withCredentials: true },
+                            data: aBODY,
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                                xhr.setRequestHeader('idEnte', idente);
+                                xhr.setRequestHeader('idStruttura', idstruttura);
+                            },
+                            success: function (data, status, settings) {
+                                var aDATA = JSON.stringify(data);
+                                navigator.notification.activityStop();
+                                //$("#div_spinner").hide();
+                                function alertDismissed() {
+                                    window.location = "icaro_prestazione_dettaglio.html?idgruppo=" + idgruppo + "&idtipoprestazione=" + idtipoprestazione + "&descr_tipoprestazione=" + descr_tipoprestazione + "&idintervento=" + idIntervento + "&codice=" + codice_intervento;
+                                }
+
+                                navigator.notification.alert(
+                                    'Timbratura avvenuta con successo',  // message
+                                    alertDismissed(),
+                                    "Success",
+                                    "Continua",
+                                );
+
+
+                                //alert("DATA: " + aDATA)
+
+                            },
+                            error: function (jqXHR, textStatus, errorThrown) {
+                                navigator.notification.activityStop();
+                                if (jqXHR.status == 401) {
+                                    //$("#div_spinner").hide();
+                                    function alertDismissed_login() {
+                                        window.location = "icaro_login.html";
+                                    }
+
+                                    navigator.notification.alert(
+                                        'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                                        alertDismissed_login,         // callback
+                                        'Attenzione',            // title
+                                        'Ok'                  // buttonName
+                                    );
+                                }
+                                else
+                                    alert("ERRORE: " + jqXHR.responseText)
+                            }
+                        });
+                  
+            }
+
+
+
+        }
+        else {
+            navigator.notification.activityStop();
+
+            function alertDismissed() {
+
+            }
+
+            navigator.notification.alert(
+                'Tessera NFC associata ad un altro beneficiario!\nImpossibile procedere con la timbratura',  // message
+                alertDismissed,         // callback
+                'Attenzione!',            // title
+                'Ok'                  // buttonName
+            );
+        }
+
+    }
+
+    function eliminaConfirm(idPrestazione) {
+        var realms = localStorage.getItem('realm');
+
+        if (idPrestazione != 0 && idPrestazione != null && idPrestazione != 'undefined') {
+
+            navigator.notification.confirm(
+                'Vuoi procedere con l\'eliminazione definitiva della prestazione?',
+                elimina,
+                'Elimina',
+                ['Elimina', 'Annulla']
+            );
+
+            function elimina(button) {
+                if (button == 1) {
+                    //var version_code = localStorage.getItem('version');
+                    //version_code = version_code.split(".").join("");
+
+                    var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni/' + idPrestazione
+
+                    $.ajax({
+                        url: url,
+                        type: "DELETE",
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        xhrFields: { withCredentials: true },
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                            xhr.setRequestHeader('idEnte', idente);
+                            xhr.setRequestHeader('idStruttura', idstruttura);
+                        },
+                        success: function (data, status, settings) {
+                            if (data == true) {
+                                function alertDismissed() {
+                                    window.location = "icaro_prestazione_dettaglio.html?idgruppo=" + idgruppo + "&idtipoprestazione=" + idtipoprestazione + "&descr_tipoprestazione=" + descr_tipoprestazione + "&idintervento=" + idIntervento + "&codice=" + codice_intervento;
+                                }
+
+                                navigator.notification.alert(
+                                    'Eliminazione avvenuta con successo',  // message
+                                    alertDismissed(),
+                                    "Success",
+                                    "Continua",
+                                );
+                            }
+
+                            $("#div_spinner").hide();
+
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            if (jqXHR.status == 401) {
+                                $("#div_spinner").hide();
+                                function alertDismissed() {
+                                    window.location = "icaro_login.html";
+                                }
+
+                                navigator.notification.alert(
+                                    'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                                    alertDismissed,         // callback
+                                    'Attenzione',            // title
+                                    'Ok'                  // buttonName
+                                );
+                            }
+                            else
+                                alert("ERRORE: " + jqXHR.responseText)
+                        }
+                    });
+                
+                }
+            }
+        }
+    }
+</script>

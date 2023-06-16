@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.iccs.app.icaro.dev" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <feature name="File">
+        <param name="android-package" value="org.apache.cordova.file.FileUtils" />
+        <param name="onload" value="true" />
+    </feature>
+    <allow-navigation href="cdvfile:*" />
+    <feature name="CordovaHttpPlugin">
+        <param name="android-package" value="com.silkimen.cordovahttp.CordovaHttpPlugin" />
+    </feature>
+    <feature name="Device">
+        <param name="android-package" value="org.apache.cordova.device.Device" />
+    </feature>
+    <feature name="Notification">
+        <param name="android-package" value="org.apache.cordova.dialogs.Notification" />
+    </feature>
+    <feature name="Geolocation">
+        <param name="android-package" value="org.apache.cordova.geolocation.Geolocation" />
+    </feature>
+    <feature name="NfcPlugin">
+        <param name="android-package" value="com.chariotsolutions.nfc.plugin.NfcPlugin" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="AppVersion">
+        <param name="android-package" value="uk.co.whiteoctober.cordova.AppVersion" />
+    </feature>
+    <name>Icaro Dev</name>
+    <description>Icaro App</description>
+    <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
+        Maggioli spa
+    </author>
+    <content src="index.html" />
+    <access origin="*" />
+    <access origin="http://*" />
+    <access origin="https://*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-navigation href="*" />
+    <icon density="ldpi" src="/www/img/icon/android/ldpi.png" />
+    <icon density="mdpi" src="/www/img/icon/android/mdpi.png" />
+    <icon density="hdpi" src="/www/img/icon/android/hdpi.png" />
+    <icon density="xhdpi" src="/www/img/icon/android/xhdpi.png" />
+    <icon density="xxhdpi" src="/www/img/icon/android/xxhdpi.png" />
+    <icon density="xxxhdpi" src="/www/img/icon/android/xxxhdpi.png" />
+    <splash density="port-ldpi" src="/www/img/screen/android/splash-port-ldpi.png" />
+    <splash density="port-mdpi" src="/www/img/screen/android/splash-port-mdpi.png" />
+    <splash density="port-hdpi" src="/www/img/screen/android/splash-port-hdpi.png" />
+    <splash density="port-xhdpi" src="/www/img/screen/android/splash-port-xhdpi.png" />
+    <splash density="port-xxhdpi" src="/www/img/screen/android/splash-port-xxhdpi.png" />
+    <splash density="port-xxxhdpi" src="/www/img/screen/android/splash-port-xxxhdpi.png" />
+    <preference name="loglevel" value="DEBUG" />
+    <preference name="android-targetSdkVersion" value="31" />
+    <preference name="orientation" value="portrait" />
+    <preference name="SplashScreenDelay" value="2500" />
+    <preference name="ShowSplashScreenSpinner" value="false" />
+    <preference name="FadeSplashScreenDuration" value="800" />
+    <preference name="SplashMaintainAspectRatio" value="true" />
+    <preference name="AndroidWindowSplashScreenAnimatedIcon" value="www/img/logo.png" />
+    <preference name="android-build-tool" value="gradle" />
+</widget>

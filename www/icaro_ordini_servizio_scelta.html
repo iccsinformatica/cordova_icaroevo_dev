@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <!--meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;"-->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport"
+        content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, viewport-fit=cover, height=device-height">
+    <meta name="color-scheme" content="light dark">
+
+    <link rel="stylesheet" href="/css/icaro.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    <script src="./cordova.js"></script>
+    <script src="./js/index.js"></script>
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/icaro.js"></script>
+
+    <style>
+        .container {
+            margin: 0% 5% 0% 5%;
+        }
+    </style>
+
+    <title>Icaro Evo</title>
+</head>
+
+<body>
+
+    <div class="div_header" id="div_header_small"></div>
+    <div style="position: relative;" id="back" name="back">
+        <img src="./img/freccia_back.svg" onclick="back()">
+    </div>
+    <div class="fade-in-image">
+
+        <div class="container_div_home d-flex flex-row " onclick="openINTERVENTI()">
+            <span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-list-ul"
+                    viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" />
+                </svg>
+            </span>
+            <div style="margin-left: 10%;"><b>Visualizza tutti gli ordini di servizio attivi ad oggi</b></div>
+        </div>
+
+        <div class="container_div_home d-flex flex-row " style="padding:5%;" onclick="openINTERVENTINFC()">
+            <span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-table"
+                    viewBox="0 0 16 16">
+                    <path
+                        d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z" />
+                </svg>
+            </span>
+            <div style="margin-left: 10%;"><b>Visualizza solo gli ordini di servizio relativi al beneficiario tramite NFC</b></div>
+        </div>
+    </div>
+</body>
+
+</html>
+<script>
+
+    var idservizio = localStorage.getItem('idservizio');
+    var idstruttura = localStorage.getItem("idstruttura");
+    var idente = localStorage.getItem('idente');
+    var access_token = localStorage.getItem("access_token");
+    //alert(access_token)
+    document.addEventListener("deviceready", onDeviceReady, false);
+    //$("#container").append('<br><br><br><br><br><br><div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-top: 50%;"><span class="visually-hidden">Caricamento in corso...</span></div>');
+    $('#container').append('<div style="margin-top:50%;" id="div_spinner" class="lds-ripple"><div></div><div></div></div>')
+
+    function onDeviceReady() {
+        getHeader();
+        refresh_token()
+      
+        $("#div_spinner").hide();
+    }
+
+
+    function openINTERVENTI() {
+        window.location = "icaro_ordini_servizio_elenco.html";
+    }
+
+    function openINTERVENTINFC() {
+        window.location = "icaro_ordini_servizio_elenco_nfc.html";
+    }
+
+    function back() {
+        window.location = "icaro_home.html";
+    }
+
+</script>

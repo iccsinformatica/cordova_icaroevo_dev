@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <!--meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;"-->
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="viewport"
+    content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, viewport-fit=cover, height=device-height">
+  <meta name="color-scheme" content="light dark">
+
+  <link rel="stylesheet" href="./css/index.css">
+  <link rel="stylesheet" href="./css/icaro.css">
+  <link rel="stylesheet" href="./css/bootstrap.min.css">
+  <link rel="stylesheet" href="./css/fontawesome-all.min.css">
+  <link rel="stylesheet" href="./css/fontawesome.css">
+  <link rel="stylesheet" href="./css/fontawesome.min.css">
+
+  <script src="./cordova.js"></script>
+  <script src="./js/index.js"></script>
+  <script src="./js/bootstrap.bundle.min.js"></script>
+  <script src="./js/jquery.min.js"></script>
+  <script src="./js/icaro.js"></script>
+
+  <style>
+    .center {
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      -ms-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+    }
+  </style>
+
+  <title>Icaro Evo</title>
+</head>
+
+<body>
+  <div class="div_header" id="div_header_small"></div>
+
+
+  <div class="d-flex flex-row" style="position: relative;" id="back" name="back" onclick="back()">
+    <div>
+      <img src="./img/freccia_back.svg">
+    </div>
+  </div>
+  <div class="scroll" id="div_container" name="div_container">
+    <div class="fade-in-image" id="div_prestazione_dettaglio" name="div_prestazione_dettaglio">
+
+    </div>
+
+
+  </div>
+
+  <input type="hidden" id="idordine_servizio" name="idordine_servizio" value="">
+
+</body>
+
+</html>
+<script>
+
+  var oggi = getDATA();
+
+  let searchParams = new URLSearchParams(window.location.search)
+  var idPrestazione = searchParams.get('_idprestazione')
+  var flag_eseguita = searchParams.get('_flag_eseguita')
+  var idIntervento = searchParams.get('_idintervento')
+  var realms = localStorage.getItem('realm');
+  var idstruttura = localStorage.getItem("idstruttura");
+  var idente = localStorage.getItem('idente');
+  refresh_token()
+  var version_code = localStorage.getItem('version');
+  version_code = version_code.split(".").join("");
+  var access_token = localStorage.getItem("access_token");
+
+  document.addEventListener("deviceready", onDeviceReady, false);
+
+  function onDeviceReady() {
+    getHeader();
+
+    $("#div_container").append('<div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-left: 50%; margin-top: 50%;"><span class="visually-hidden">Caricamento in corso...</span></div>');
+
+
+    var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni/ricerca?id.equals=' + idPrestazione;
+
+    $.ajax({
+      url: url,
+      type: 'GET',
+      xhrFields: { withCredentials: true },
+      crossDomain: true,
+      dataType: 'json',
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+        xhr.setRequestHeader('idEnte', idente);
+        xhr.setRequestHeader('idStruttura', idstruttura);
+      },
+      success: function (result, textStatus, jqXHR) {
+        var content = result.content
+        var str_prestazione = '';
+        var idprestazioni = '';
+        $.each(content, function (index, element) {
+          var utenteCreazione = element.utenteCreazione;
+          var dataCreazione = element.dataCreazione;
+          var dataUltimaModifica = element.dataUltimaModifica;
+          var utenteUltimaModifica = element.utenteUltimaModifica;
+          var version = element.version;
+
+          var gruppoPrestazione = element.gruppoPrestazione;
+          var idgruppoprestazione = gruppoPrestazione["id"]
+          var codice_gruppoprestazione = gruppoPrestazione["codice"]
+          var descrizione_gruppoprestazione = gruppoPrestazione["descrizione"]
+          var richiestaContributo_gruppoprestazione = gruppoPrestazione["richiestaContributo"]
+          var importoNegativo_gruppoprestazione = gruppoPrestazione["importoNegativo"]
+          var unitaMisura_gruppoprestazione = gruppoPrestazione["unitaMisura"]
+
+          var id_unitamisura = unitaMisura_gruppoprestazione["id"]
+          var codice_unitamisura = unitaMisura_gruppoprestazione["codice"]
+          var descrizione_unitamisura = unitaMisura_gruppoprestazione["descrizione"]
+
+          var oraObbligatoria = gruppoPrestazione["oraObbligatoria"]
+          var quantita = element.quantita;
+          var durata = element.durata;
+          var oraInizio = element.oraInizio;
+          alert(oraInizio)
+          var oraFine = element.oraFine;
+          var pianificata = element.pianificata;
+          var erogata = element.erogata;
+          var fatturabile = element.fatturabile;
+          var numeroOperatori = element.numeroOperatori;
+          var note = element.note;
+          var tipiPrestazione = element.tipiPrestazione;
+
+          $.each(tipiPrestazione, function (index, tipoprestazione) {
+            var id_tipoprestazione = tipoprestazione.id;
+            var codice_tipoprestazione = tipoprestazione.codice;
+            var descrizione_tipoprestazione = tipoprestazione.descrizione;
+            str_prestazione += codice_tipoprestazione + " " + descrizione_tipoprestazione + "\n";
+            idprestazioni += id_tipoprestazione + "&";
+          });
+
+          var first = element.first;
+          var last = element.last;
+
+         
+            var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/interventi/ricerca?id.equals=' + idIntervento;
+
+          $.ajax({
+            url: url,
+            type: 'GET',
+            xhrFields: { withCredentials: true },
+            crossDomain: true,
+            dataType: 'json',
+            beforeSend: function (xhr) {
+              xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+              xhr.setRequestHeader('idEnte', idente);
+              xhr.setRequestHeader('idStruttura', idstruttura);
+            },
+            success: function (res, textStatus, jqXHR) {
+              var content = res.content
+              $.each(content, function (index, element) {
+                var soggetto = element.titolare.soggetto
+                var id_soggetto = soggetto.id
+                var idIcaro = soggetto.idIcaro
+                var codiceFiscale = soggetto.codiceFiscale
+                var nome = soggetto.nome
+                var cognome = soggetto.cognome
+                var sesso = soggetto.sesso
+                var dataNascita = soggetto.dataNascita
+                var codiceIstatNazioneNascita = soggetto.codiceIstatNazioneNascita
+                var luogoNascita = soggetto.luogoNascita
+
+                var indirizzoResidenza = soggetto.indirizzoResidenza
+                var indirizzoCompleto = indirizzoResidenza.indirizzoCompleto
+                var comune = indirizzoResidenza.comune
+                var provincia = indirizzoResidenza.provincia
+
+                
+                var url = 'https://gateway.icaro-dev.maggioli.cloud/services/soggettiservice/api/soggetti/ricerca?id.equals=' + id_soggetto;
+
+                $.ajax({
+                  url: url,
+                  type: 'GET',
+                  xhrFields: { withCredentials: true },
+                  crossDomain: true,
+                  dataType: 'json',
+                  beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                    xhr.setRequestHeader('idEnte', idente);
+                    xhr.setRequestHeader('idStruttura', idstruttura);
+                  },
+                  success: function (result, textStatus, jqXHR) {
+                    var content = result.content
+
+                    $.each(content, function (index, element) {
+                      var telefono1 = element.telefono1
+                      var telefono2 = element.telefono2
+                      var telefono3 = element.telefono3
+
+                      if (telefono1 == null || telefono1 == "null")
+                        telefono1 = '';
+                      if (telefono2 == null || telefono2 == "null")
+                        telefono2 = '';
+
+                      if (telefono3 == null || telefono3 == "null")
+                        telefono3 = '';
+                      var email = element.email
+
+                      if (email == null || email == "null")
+                        email = '';
+
+                      var note = element.note
+                      if (note == null || note == "null")
+                        note = '';
+
+                      var class_div = '';
+                      var descr_prestazione = '';
+                      var flag_eseguita = 0;
+                      var h6hour = '';
+                      //oraInizio = "08:14"
+                      if (oraInizio == null || oraInizio == "null") {
+                        class_div = "noneseguita";
+                        descr_prestazione = 'Prestazione non eseguita';
+                        flag_eseguita = 0;
+
+                      }
+                      else if (oraFine == null || oraFine == "null") {
+                        class_div = "eseguitaparziale";
+                        descr_prestazione = 'Prestazione eseguita parziale';
+                        flag_eseguita = 2;
+                        h6hour = '<h6 class="font"><b>Ora inizio: </b>' + oraInizio + '<br></h6>'
+
+                      }
+                      else {
+                        class_div = "eseguita";
+                        descr_prestazione = 'Prestazione eseguita';
+                        flag_eseguita = 1;
+                        h6hour = '<h6 class="font"><b>Ora inizio: </b>' + oraInizio + '<br><b>Ora Fine: </b>' + oraFine + '</h6>'
+                      }
+
+                      $("#div_prestazione_dettaglio").append('<div class=" scroll container_div ' + class_div + '" style="padding:5%;">\
+                        <div>\
+                          <h6 class="font" style="font-size:11px;"><b>Nominativo: </b>'+ cognome + ' ' + nome + '</h6>\
+                          <h6 class="font" style="font-size:11px;"><b>Indirizzo: </b>'+ indirizzoCompleto + ')</h6>\
+                          <h6 class="font" style="font-size:11px;"><b>Comune: </b>'+ comune + ' (' + provincia + ')</h6>\
+                          <h6 class="font" style="font-size:11px;"><b>Telefono </b>: '+ telefono1 + ' ' + telefono2 + ' ' + telefono3 + '</h6>\
+                          <h6 class="font" style="font-size:11px;"><b>Email: </b>'+ email + '</h6>\
+                          <input type="hidden" id="idprestazioni" name="idprestazioni" value="'+ idprestazioni + '"/>\
+                          <input type="hidden" id="idgruppoprestazione" name="idgruppoprestazione" value="'+ idgruppoprestazione + '"/>\
+                          <h6 class="font"  style="font-size:11px;"><b>Tipo: </b>'+ str_prestazione + '</h6>\
+                          <hr>\
+                          <h6 class="font" style="font-size:11px;"><b>Note: </b>'+ note + '</h6>\
+                          <hr>\
+                          '+ h6hour + '\
+                        </div>\
+                      </div>');
+                    });
+
+                    if (oraInizio == null || oraInizio == "null") {
+                      $("#div_prestazione_dettaglio").append('<div class="container_div_home d-flex flex-row" style="margin-top:10%;">\
+                          <div>\
+                            <img src="./img/calendar.svg">\
+                          </div>\
+                          <div style="margin-left:10%;" onclick="readNFC()">\
+                            <h6 class="font"><b>Iniza Prestazione</b></h6>\
+                          </div>\
+                        </div>');
+                    }
+                    else if (oraFine == null || oraFine == "null") {
+                      $("#div_prestazione_dettaglio").append('<div class="container_div_home d-flex flex-row" style="margin-top:10%;">\
+                          <div>\
+                            <img src="./img/calendar.svg">\
+                          </div>\
+                          <div style="margin-left:10%;" onclick="readNFC()">\
+                            <h6 class="font"><b>Termina Prestazione</b></h6>\
+                          </div>\
+                        </div>');
+
+                    }
+                  },
+                  error: function (xhr, status, error) {
+                    if (xhr.status == 401) {
+                      $("#div_spinner").hide();
+                      function alertDismissed() {
+                        localStorage.removeItem('access_token');
+                        window.location = "icaro_login.html";
+                      }
+
+                      navigator.notification.alert(
+                        'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                        alertDismissed,         // callback
+                        'Attenzione',            // title
+                        'Ok'                  // buttonName
+                      );
+                    }
+                  }
+                });
+
+              });
+            },
+            error: function (xhr, status, error) {
+              if (xhr.status == 401) {
+                $("#div_spinner").hide();
+                function alertDismissed() {
+                  localStorage.removeItem('access_token');
+                  window.location = "icaro_login.html";
+                }
+
+                navigator.notification.alert(
+                  'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                  alertDismissed,         // callback
+                  'Attenzione',            // title
+                  'Ok'                  // buttonName
+                );
+              }
+            }
+          });
+        });
+        $("#div_spinner").hide();
+      },
+      error: function (xhr, status, error) {
+        //alert(xhr.responseText)
+
+        if (xhr.status == 401) {
+          $("#div_spinner").hide();
+          function alertDismissed() {
+            localStorage.removeItem('access_token');
+            window.location = "icaro_login.html";
+          }
+
+          navigator.notification.alert(
+            'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+            alertDismissed,         // callback
+            'Attenzione',            // title
+            'Ok'                  // buttonName
+          );
+        }
+      }
+    });
+
+  }
+
+  function back() {
+    window.location = "icaro_ordini_servizio_elenco.html";
+  }
+
+  function readNFC() {
+    window.nfc.enabled(
+      () => {
+        // NFC enabled
+        this.registerTagEvent()
+
+      },
+      (error) => {
+        if (error === 'NFC_DISABLED') {
+          // Trigger the phone settings to enable the NFC settings
+          window.nfc.showSettings()
+        } else if (error === 'NO_NFC') {
+          navigator.notification.alert('Cannot scan NFC', () => { }, 'No NFC', 'OK')
+        }
+      }
+    )
+
+  }
+  function registerTagEvent() {
+    window.nfc.addNdefListener(
+      this.onSuccess(),
+      () => {
+        navigator.notification.alert(
+          'Lettura tag nfc in corso, appoggiare la tessera NFC nel retro del dispositivo',  // message
+        );
+      },
+      (error) => {
+        console.log('failure registering ndef listener', error)
+      }
+    )
+  }
+
+  function onFailure() {
+    nfc.showSettings();
+  }
+
+  function onSuccess() {
+    navigator.notification.beep(1);
+    if (isiOS()) {
+      // Promise
+      nfc.scanTag().then(
+        tag => {
+          console.log(JSON.stringify(tag))
+          if (tag.id) {
+            console.log(nfc.bytesToHexString(tag.id));
+          }
+        },
+        err => console.log(err)
+      );
+
+      // Async Await
+      try {
+        let tag = nfc.scanTag();
+        console.log(JSON.stringify(tag));
+        if (tag.id) {
+          console.log(nfc.bytesToHexString(tag.id));
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    else {
+
+      nfc.readerMode(nfc.FLAG_READER_NFC_A, nfcTag => readSuccess(nfcTag), error => alert('NFC reader mode failed', error));
+
+    }
+
+  }
+
+  function readSuccess(nfcTag) {
+    var res = JSON.stringify(nfcTag)
+    var ora = getTIME()
+    //!!!!controllare se il soggetto corrisponde al soggetto del tag nfc!!!
+
+    var idprestazioni = $("#idprestazioni").val()
+    idprestazioni = idprestazioni.substring(0, idprestazioni.length - 1);
+
+    var aIDPRESTAZIONI = idprestazioni.split("&");
+
+    var idgruppoprestazione = $("#idgruppoprestazione").val()
+
+    var body = {
+      'idIntervento': idIntervento,
+      'idGruppoPrestazione': idgruppoprestazione,
+      'listaIdTipiPrestazione': aIDPRESTAZIONI,
+      'quantita': 1,
+      "oraInizio": ora,
+      'erogata': true,
+      'fatturabile': true,
+      'dataAccesso': oggi
+    };
+    var aBODY = JSON.stringify(body);
+    //alert(aBODY)
+    var version_code = localStorage.getItem('version');
+    version_code = version_code.split(".").join("");
+
+
+    var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni';
+
+    $.ajax({
+      url: url,
+      type: "POST",
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      xhrFields: { withCredentials: true },
+      data: aBODY,
+      beforeSend: function (xhr) {
+        xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+        xhr.setRequestHeader('idEnte', idente);
+        xhr.setRequestHeader('idStruttura', idstruttura);
+      },
+      success: function (data, status, settings) {
+        navigator.notification.alert(
+          'Timbratura avvenuta con successo',  // message
+        );
+        var aDATA = JSON.stringify(data);
+
+        //alert("DATA: " + aDATA)
+
+
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        alert("ERRORE: " + jqXHR.responseText)
+
+        if (xhr.status == 401) {
+          $("#div_spinner").hide();
+          function alertDismissed() {
+            localStorage.removeItem('access_token');
+            window.location = "icaro_login.html";
+          }
+
+          navigator.notification.alert(
+            'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+            alertDismissed,         // callback
+            'Attenzione',            // title
+            'Ok'                  // buttonName
+          );
+        }
+      }
+    });
+    /*
+      alert(idprestazioni)
+      alert(idgruppoprestazione)
+    */
+    //$("#div_container").append('<br><br><br><br><br><br><div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-top: 20%;"><span class="">Timbratura in corso...</span></div>');
+    //alert(nfcTag["id"])
+
+    //$("#div_spinner").hide();
+
+  }
+
+
+  String.prototype.rtrim = function () {
+    var trimmed = this.replace("&", '');
+    return trimmed;
+  };
+
+</script>
