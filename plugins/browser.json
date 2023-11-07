@@ -7,10 +7,6 @@
     "files": {}
   },
   "installed_plugins": {
-    "cordova-plugin-advanced-http": {
-      "ANDROIDBLACKLISTSECURESOCKETPROTOCOLS": "SSLv3,TLSv1",
-      "PACKAGE_NAME": "com.iccs.app.icaro.dev"
-    },
     "cordova-plugin-device": {
       "PACKAGE_NAME": "com.iccs.app.icaro.dev"
     },
@@ -28,6 +24,10 @@
       "PACKAGE_NAME": "com.iccs.app.icaro.dev"
     },
     "cordova-plugin-app-version": {
+      "PACKAGE_NAME": "com.iccs.app.icaro.dev"
+    },
+    "cordova-plugin-advanced-http": {
+      "ANDROIDBLACKLISTSECURESOCKETPROTOCOLS": "SSLv3,TLSv1",
       "PACKAGE_NAME": "com.iccs.app.icaro.dev"
     }
   },

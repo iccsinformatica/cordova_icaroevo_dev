@@ -125,7 +125,7 @@
     $("#div_select_struttura").hide();
     $("#div_select_idente").hide();
     $("#div_select_servizi").hide();
-    $("#div_login").show();
+    
     //$("#div_login").hide();
     //$('#container').append('<div class="loading" id="div_spinner"><div class="loader"></div></div>')
     //$('#container').append('<div style="margin-top:50%;" id="div_spinner" class="lds-ripple"><div></div><div></div></div>')
@@ -138,12 +138,12 @@
         localStorage.removeItem('refresh_token');
         localStorage.removeItem('idstruttura');
         localStorage.removeItem('idente');
-        var version_code='100';
-      
+        //var version_code='100';
+        //$("#container").hide();
         cordova.getAppVersion.getVersionNumber(function (version) {
             localStorage.setItem('version', version);
-            version_code = localStorage.getItem('version');
-            version_code = version_code.split(".").join("");
+            //version_code = localStorage.getItem('version');
+            //version_code = version_code.split(".").join("");
         });
 
         //var url = "https://demo.sicare.it/sicare_mobile/icaro-evo-dev/api_" + version_code + "/mobile_icaroevo_action.php?_action=get_listaenti";
@@ -221,18 +221,10 @@
         //$("#container").append('<br><br><br><br><br><br><div id="div_spinner_login" class="spinner-grow text-primary" role="status" style=" margin-top: 20%;"><span class="visually-hidden">Caricamento in corso...</span></div>');
         var client_secret = '9cf35845-f09e-4d73-a7f0-048d51bc06a5';
         var realms = $("#realms").val()
-        //realms="progetto_iccs"
+        realms="progetto_iccs"
         var username = $("#username").val()
         var password = $("#password").val()
-
-        
-            var details = {
-                'grant_type': 'password',
-                'client_secret': client_secret,
-                'client_id': 'simeal',
-                'username': username,
-                'password': password,
-            };
+    
         /*
         var client_secret = '';
         
@@ -247,22 +239,7 @@
             
         //client_secret="9cf35845-f09e-4d73-a7f0-048d51bc06a5"; //DEV progetto_iccs
 
-        if (client_secret == '') {
-            function alertDismissed_client_secret() {
-                location.reload();
-            }
-
-            navigator.notification.alert(
-                'Ente non attivo',  // message
-                alertDismissed_client_secret,         // callback
-                'Attenzione',            // title
-                'Chiudi'                  // buttonName
-            );
-            $("#div_spinner_login").hide();
-            return false;
-        }
-        else
-            localStorage.setItem('client_secret', client_secret);
+        localStorage.setItem('client_secret', client_secret);
 
 
         if (username == '' || password == '') {
@@ -299,7 +276,7 @@
         }
         formBody = formBody.join("&");
 
-        //var version_code = localStorage.getItem('version');
+        var version_code = localStorage.getItem('version');
         var version_code='1.0.0';
         version_code = version_code.split(".").join("");
 
@@ -316,6 +293,7 @@
             body: formBody
         }).then((response) => response.json())
             .then((responseData) => {
+                
                 var access_token = responseData['access_token'];
                 var refresh_token = responseData['refresh_token'];
                 var expires_in = responseData['expires_in'];
@@ -338,7 +316,7 @@
                         var url = 'https://gateway.icaro-dev.maggioli.cloud/services/autorizzazioniservice/api/account-info';
 
                         //alert(url)
-                        //return false;
+                       
                         $.ajax({
                             url: url,
                             type: 'GET',
@@ -349,7 +327,7 @@
                             },
                             success: function (result, textStatus, jqXHR) {
 
-
+                                alert(result["id"])
                                 var id = result["id"]
                                 var nome = result["nome"]
                                 var cognome = result["cognome"]
@@ -388,7 +366,10 @@
                                     //getSTRUTTURE(idente)
                             },
                             error: function (xhr, status, error) {
-                                console.log(xhr.responseText)
+                                alert(xhr.responseText)
+                                alert(status)
+                                alert(error)
+
                                 function alertDismissed() {
                                     location.reload();
                                 }

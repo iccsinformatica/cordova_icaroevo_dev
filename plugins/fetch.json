@@ -1,14 +1,4 @@
 {
-  "cordova-plugin-advanced-http": {
-    "source": {
-      "type": "registry",
-      "id": "cordova-plugin-advanced-http"
-    },
-    "is_top_level": true,
-    "variables": {
-      "ANDROIDBLACKLISTSECURESOCKETPROTOCOLS": "SSLv3,TLSv1"
-    }
-  },
   "cordova-plugin-file": {
     "source": {
       "type": "registry",
@@ -53,6 +43,14 @@
     "source": {
       "type": "registry",
       "id": "cordova-plugin-app-version"
+    },
+    "is_top_level": true,
+    "variables": {}
+  },
+  "cordova-plugin-advanced-http": {
+    "source": {
+      "type": "registry",
+      "id": "cordova-plugin-advanced-http"
     },
     "is_top_level": true,
     "variables": {}

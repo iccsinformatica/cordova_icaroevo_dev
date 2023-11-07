@@ -72,8 +72,8 @@
   var idstruttura = localStorage.getItem("idstruttura");
   var idente = localStorage.getItem('idente');
   refresh_token()
-  var version_code = localStorage.getItem('version');
-  version_code = version_code.split(".").join("");
+  //var version_code = localStorage.getItem('version');
+  //version_code = version_code.split(".").join("");
   var access_token = localStorage.getItem("access_token");
 
   document.addEventListener("deviceready", onDeviceReady, false);
@@ -439,8 +439,8 @@
     };
     var aBODY = JSON.stringify(body);
     //alert(aBODY)
-    var version_code = localStorage.getItem('version');
-    version_code = version_code.split(".").join("");
+    //var version_code = localStorage.getItem('version');
+    //version_code = version_code.split(".").join("");
 
 
     var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni';

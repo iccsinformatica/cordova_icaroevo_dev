@@ -89,8 +89,8 @@
   var realms = localStorage.getItem('realm');
 
   var access_token = localStorage.getItem("access_token");
-  var version_code = localStorage.getItem('version');
-  version_code = version_code.split(".").join("");
+  //var version_code = localStorage.getItem('version');
+  //version_code = version_code.split(".").join("");
 
   document.addEventListener("deviceready", onDeviceReady, false);
 
@@ -166,8 +166,8 @@
     if (idgruppo != '') {
       $("#div_tipiprestazione").show();
 
-      var version_code = localStorage.getItem('version');
-      version_code = version_code.split(".").join("");
+      //var version_code = localStorage.getItem('version');
+      //version_code = version_code.split(".").join("");
 
           var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/gruppi-prestazioni-tipi/ricerca/' + idgruppo;
 

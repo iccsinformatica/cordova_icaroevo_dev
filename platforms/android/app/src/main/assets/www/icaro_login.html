@@ -293,6 +293,7 @@
             body: formBody
         }).then((response) => response.json())
             .then((responseData) => {
+                
                 var access_token = responseData['access_token'];
                 var refresh_token = responseData['refresh_token'];
                 var expires_in = responseData['expires_in'];
@@ -315,7 +316,7 @@
                         var url = 'https://gateway.icaro-dev.maggioli.cloud/services/autorizzazioniservice/api/account-info';
 
                         //alert(url)
-                        //return false;
+                       
                         $.ajax({
                             url: url,
                             type: 'GET',
@@ -326,7 +327,7 @@
                             },
                             success: function (result, textStatus, jqXHR) {
 
-
+                                alert(result["id"])
                                 var id = result["id"]
                                 var nome = result["nome"]
                                 var cognome = result["cognome"]

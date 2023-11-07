@@ -85,8 +85,8 @@
         var aINTERVENTI = [];
         //Con la prima chiamata prendo l'id del soggetto
 
-        var version_code = localStorage.getItem('version');
-        version_code = version_code.split(".").join("");
+        //var version_code = localStorage.getItem('version');
+        //version_code = version_code.split(".").join("");
         
         var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/interventi/ricerca?id.equals='+ idIntervento;
 
@@ -498,8 +498,8 @@
             var aIDPRESTAZIONI = [];
             aIDPRESTAZIONI.push(idtipoprestazione)
 
-            var version_code = localStorage.getItem('version');
-            version_code = version_code.split(".").join("");
+            //var version_code = localStorage.getItem('version');
+           // version_code = version_code.split(".").join("");
 
             if (ora_inizio == null && idPrestazione == null) //prestazione nuova faccio una POST
             {
@@ -731,8 +731,8 @@
 
             function elimina(button) {
                 if (button == 1) {
-                    var version_code = localStorage.getItem('version');
-                    version_code = version_code.split(".").join("");
+                    //var version_code = localStorage.getItem('version');
+                    //version_code = version_code.split(".").join("");
 
                     var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni/' + idPrestazione
 

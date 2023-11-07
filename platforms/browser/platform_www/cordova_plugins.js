@@ -180,6 +180,50 @@ module.exports = [
         ]
     },
     {
+        "file": "plugins/cordova-plugin-device/www/device.js",
+        "id": "cordova-plugin-device.device",
+        "pluginId": "cordova-plugin-device",
+        "clobbers": [
+            "device"
+        ]
+    },
+    {
+        "file": "plugins/cordova-plugin-device/src/browser/DeviceProxy.js",
+        "id": "cordova-plugin-device.DeviceProxy",
+        "pluginId": "cordova-plugin-device",
+        "runs": true
+    },
+    {
+        "file": "plugins/cordova-plugin-dialogs/www/notification.js",
+        "id": "cordova-plugin-dialogs.notification",
+        "pluginId": "cordova-plugin-dialogs",
+        "merges": [
+            "navigator.notification"
+        ]
+    },
+    {
+        "file": "plugins/cordova-plugin-dialogs/www/browser/notification.js",
+        "id": "cordova-plugin-dialogs.notification_browser",
+        "pluginId": "cordova-plugin-dialogs",
+        "merges": [
+            "navigator.notification"
+        ]
+    },
+    {
+        "file": "plugins/cordova-plugin-app-version/www/AppVersionPlugin.js",
+        "id": "cordova-plugin-app-version.AppVersionPlugin",
+        "pluginId": "cordova-plugin-app-version",
+        "clobbers": [
+            "cordova.getAppVersion"
+        ]
+    },
+    {
+        "file": "plugins/cordova-plugin-app-version/src/browser/AppVersionProxy.js",
+        "id": "cordova-plugin-app-version.AppVersionProxy",
+        "pluginId": "cordova-plugin-app-version",
+        "runs": true
+    },
+    {
         "file": "plugins/cordova-plugin-advanced-http/www/cookie-handler.js",
         "id": "cordova-plugin-advanced-http.cookie-handler",
         "pluginId": "cordova-plugin-advanced-http"
@@ -257,62 +301,18 @@ module.exports = [
         "id": "cordova-plugin-advanced-http.http-proxy",
         "pluginId": "cordova-plugin-advanced-http",
         "runs": true
-    },
-    {
-        "file": "plugins/cordova-plugin-device/www/device.js",
-        "id": "cordova-plugin-device.device",
-        "pluginId": "cordova-plugin-device",
-        "clobbers": [
-            "device"
-        ]
-    },
-    {
-        "file": "plugins/cordova-plugin-device/src/browser/DeviceProxy.js",
-        "id": "cordova-plugin-device.DeviceProxy",
-        "pluginId": "cordova-plugin-device",
-        "runs": true
-    },
-    {
-        "file": "plugins/cordova-plugin-dialogs/www/notification.js",
-        "id": "cordova-plugin-dialogs.notification",
-        "pluginId": "cordova-plugin-dialogs",
-        "merges": [
-            "navigator.notification"
-        ]
-    },
-    {
-        "file": "plugins/cordova-plugin-dialogs/www/browser/notification.js",
-        "id": "cordova-plugin-dialogs.notification_browser",
-        "pluginId": "cordova-plugin-dialogs",
-        "merges": [
-            "navigator.notification"
-        ]
-    },
-    {
-        "file": "plugins/cordova-plugin-app-version/www/AppVersionPlugin.js",
-        "id": "cordova-plugin-app-version.AppVersionPlugin",
-        "pluginId": "cordova-plugin-app-version",
-        "clobbers": [
-            "cordova.getAppVersion"
-        ]
-    },
-    {
-        "file": "plugins/cordova-plugin-app-version/src/browser/AppVersionProxy.js",
-        "id": "cordova-plugin-app-version.AppVersionProxy",
-        "pluginId": "cordova-plugin-app-version",
-        "runs": true
     }
 ];
 module.exports.metadata = 
 // TOP OF METADATA
 {
     "cordova-plugin-file": "7.0.0",
-    "cordova-plugin-advanced-http": "3.3.1",
     "cordova-plugin-device": "2.1.0",
     "cordova-plugin-dialogs": "2.0.2",
     "cordova-plugin-geolocation": "4.1.0",
     "phonegap-nfc": "1.2.0",
-    "cordova-plugin-app-version": "0.1.14"
+    "cordova-plugin-app-version": "0.1.14",
+    "cordova-plugin-advanced-http": "3.3.1"
 }
 // BOTTOM OF METADATA
 });

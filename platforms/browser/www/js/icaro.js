@@ -337,41 +337,6 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function get_url_gateway() {
-    var version_code = localStorage.getItem('version');
-    version_code = version_code.split(".").join("");
-
-    var url = "https://demo.sicare.it/sicare_mobile/icaro-evo/api_" + version_code + "/mobile_icaroevo_action.php?_action=get_url_gateway";
-    $.ajax({
-        url: url,
-        type: "POST",
-        dataType: "html",
-        contentType: 'text/html',
-        success: function (result) {
-            var urlgateway = JSON.parse(result);
-            alert(url)
-            return url;
-        }
-    });
-}
-
-function get_url_keycloak() {
-    var version_code = localStorage.getItem('version');
-    version_code = version_code.split(".").join("");
-
-    var url = "https://demo.sicare.it/sicare_mobile/icaro-evo/api_" + version_code + "/mobile_icaroevo_action.php?_action=get_url_keycloak";
-    $.ajax({
-        url: url,
-        type: "POST",
-        dataType: "html",
-        contentType: 'text/html',
-        success: function (result) {
-            var url = JSON.parse(result);
-            return url;
-
-        }
-    });
-}
 
 function refresh_token() {
     var access_token = localStorage.getItem('access_token');
@@ -392,8 +357,8 @@ function refresh_token() {
     //if (oggi != data_scadenza_token) 
     if (timeToSeconds(ora_scadenza_token) <= timeToSeconds(ora))
     {
-        //var client_id="simeal" //dev
-        var client_id="icaroevo" //PROD
+        var client_id="simeal" //dev
+        //var client_id="icaroevo" //PROD
 
         var details = {
             'grant_type': 'refresh_token',
@@ -412,7 +377,7 @@ function refresh_token() {
         }
         formBody = formBody.join("&");
 
-        var url = "https://login.maggiolicloud.it/auth/realms/" + realms + "/protocol/openid-connect/token/";
+        var url = "https://login-dev.maggiolicloud.it/auth/realms/" + realms + "/protocol/openid-connect/token/";
         fetch(url, {
             method: 'POST',
             headers: {

@@ -18,6 +18,8 @@
     <platform name="android">
 
         <preference name="android-targetSdkVersion" value="31" />
+        <preference name="scheme" value="https" />
+        <preference name="AndroidBlacklistSecureSocketProtocols" value="SSLv3,TLSv1" />
 
         <preference name="orientation" value="portrait" />
         <preference name="SplashScreenDelay" value="2500" />
