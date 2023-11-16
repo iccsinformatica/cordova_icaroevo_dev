@@ -301,6 +301,20 @@ module.exports = [
         "id": "cordova-plugin-advanced-http.http-proxy",
         "pluginId": "cordova-plugin-advanced-http",
         "runs": true
+    },
+    {
+        "file": "plugins/phonegap-plugin-barcodescanner/www/barcodescanner.js",
+        "id": "phonegap-plugin-barcodescanner.BarcodeScanner",
+        "pluginId": "phonegap-plugin-barcodescanner",
+        "clobbers": [
+            "cordova.plugins.barcodeScanner"
+        ]
+    },
+    {
+        "file": "plugins/phonegap-plugin-barcodescanner/src/browser/BarcodeScannerProxy.js",
+        "id": "phonegap-plugin-barcodescanner.BarcodeScannerProxy",
+        "pluginId": "phonegap-plugin-barcodescanner",
+        "runs": true
     }
 ];
 module.exports.metadata = 
@@ -309,10 +323,14 @@ module.exports.metadata =
     "cordova-plugin-file": "7.0.0",
     "cordova-plugin-device": "2.1.0",
     "cordova-plugin-dialogs": "2.0.2",
-    "cordova-plugin-geolocation": "4.1.0",
     "phonegap-nfc": "1.2.0",
     "cordova-plugin-app-version": "0.1.14",
-    "cordova-plugin-advanced-http": "3.3.1"
+    "cordova-plugin-advanced-http": "3.3.1",
+    "phonegap-plugin-barcodescanner": "8.1.0",
+    "cordova.plugins.diagnostic": "7.1.4",
+    "cordova-plugin-request-location-accuracy": "2.3.0",
+    "cordova-plugin-androidx-adapter": "1.1.3",
+    "cordova-plugin-geolocation": "5.0.0"
 }
 // BOTTOM OF METADATA
 });

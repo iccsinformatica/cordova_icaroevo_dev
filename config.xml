@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.iccs.app.icaro.dev" version="1.0.0"
+<widget id="com.iccs.app.icaro.dev" version="2.0.0"
     xmlns="http://www.w3.org/ns/widgets"
     xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Icaro Dev</name>
+    <name>IcaroEvoCoop Dev</name>
     <description>Icaro App</description>
     <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
         Maggioli spa
@@ -17,7 +17,7 @@
     <!--preference name="phonegap-version" value="cli-9.0.0" /-->
     <platform name="android">
 
-        <preference name="android-targetSdkVersion" value="31" />
+        <preference name="android-targetSdkVersion" value="33" />
         <preference name="scheme" value="https" />
         <preference name="AndroidBlacklistSecureSocketProtocols" value="SSLv3,TLSv1" />
 

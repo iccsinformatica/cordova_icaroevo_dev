@@ -71,176 +71,173 @@
   var realms = localStorage.getItem('realm');
   var idstruttura = localStorage.getItem("idstruttura");
   var idente = localStorage.getItem('idente');
-  refresh_token()
-  //var version_code = localStorage.getItem('version');
-  //version_code = version_code.split(".").join("");
+ // refresh_token()
+  var version_code = localStorage.getItem('version');
+  version_code = version_code.split(".").join("");
   var access_token = localStorage.getItem("access_token");
 
   document.addEventListener("deviceready", onDeviceReady, false);
-
+  getHeader();
   function onDeviceReady() {
-    getHeader();
+  
 
     $("#div_container").append('<div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-left: 50%; margin-top: 50%;"><span class="visually-hidden">Caricamento in corso...</span></div>');
 
+        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni/ricerca?id.equals=' + idPrestazione;
+       
+        $.ajax({
+          url: url,
+          type: 'GET',
+          xhrFields: { withCredentials: true },
+          crossDomain: true,
+          dataType: 'json',
+          beforeSend: function (xhr) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+            xhr.setRequestHeader('idEnte', idente);
+            xhr.setRequestHeader('idStruttura', idstruttura);
+          },
+          success: function (result, textStatus, jqXHR) {
+            var content = result.content
+            var str_prestazione = '';
+            var idprestazioni = '';
+            $.each(content, function (index, element) {
+              var utenteCreazione = element.utenteCreazione;
+              var dataCreazione = element.dataCreazione;
+              var dataUltimaModifica = element.dataUltimaModifica;
+              var utenteUltimaModifica = element.utenteUltimaModifica;
+              var version = element.version;
 
-    var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni/ricerca?id.equals=' + idPrestazione;
+              var gruppoPrestazione = element.gruppoPrestazione;
+              var idgruppoprestazione = gruppoPrestazione["id"]
+              var codice_gruppoprestazione = gruppoPrestazione["codice"]
+              var descrizione_gruppoprestazione = gruppoPrestazione["descrizione"]
+              var richiestaContributo_gruppoprestazione = gruppoPrestazione["richiestaContributo"]
+              var importoNegativo_gruppoprestazione = gruppoPrestazione["importoNegativo"]
+              var unitaMisura_gruppoprestazione = gruppoPrestazione["unitaMisura"]
 
-    $.ajax({
-      url: url,
-      type: 'GET',
-      xhrFields: { withCredentials: true },
-      crossDomain: true,
-      dataType: 'json',
-      beforeSend: function (xhr) {
-        xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-        xhr.setRequestHeader('idEnte', idente);
-        xhr.setRequestHeader('idStruttura', idstruttura);
-      },
-      success: function (result, textStatus, jqXHR) {
-        var content = result.content
-        var str_prestazione = '';
-        var idprestazioni = '';
-        $.each(content, function (index, element) {
-          var utenteCreazione = element.utenteCreazione;
-          var dataCreazione = element.dataCreazione;
-          var dataUltimaModifica = element.dataUltimaModifica;
-          var utenteUltimaModifica = element.utenteUltimaModifica;
-          var version = element.version;
+              var id_unitamisura = unitaMisura_gruppoprestazione["id"]
+              var codice_unitamisura = unitaMisura_gruppoprestazione["codice"]
+              var descrizione_unitamisura = unitaMisura_gruppoprestazione["descrizione"]
 
-          var gruppoPrestazione = element.gruppoPrestazione;
-          var idgruppoprestazione = gruppoPrestazione["id"]
-          var codice_gruppoprestazione = gruppoPrestazione["codice"]
-          var descrizione_gruppoprestazione = gruppoPrestazione["descrizione"]
-          var richiestaContributo_gruppoprestazione = gruppoPrestazione["richiestaContributo"]
-          var importoNegativo_gruppoprestazione = gruppoPrestazione["importoNegativo"]
-          var unitaMisura_gruppoprestazione = gruppoPrestazione["unitaMisura"]
+              var oraObbligatoria = gruppoPrestazione["oraObbligatoria"]
+              var quantita = element.quantita;
+              var durata = element.durata;
+              var oraInizio = element.oraInizio;
+              
+              var oraFine = element.oraFine;
+              var pianificata = element.pianificata;
+              var erogata = element.erogata;
+              var fatturabile = element.fatturabile;
+              var numeroOperatori = element.numeroOperatori;
+              var note = element.note;
+              var tipiPrestazione = element.tipiPrestazione;
 
-          var id_unitamisura = unitaMisura_gruppoprestazione["id"]
-          var codice_unitamisura = unitaMisura_gruppoprestazione["codice"]
-          var descrizione_unitamisura = unitaMisura_gruppoprestazione["descrizione"]
+              $.each(tipiPrestazione, function (index, tipoprestazione) {
+                var id_tipoprestazione = tipoprestazione.id;
+                var codice_tipoprestazione = tipoprestazione.codice;
+                var descrizione_tipoprestazione = tipoprestazione.descrizione;
+                str_prestazione += codice_tipoprestazione + " " + descrizione_tipoprestazione + "\n";
+                idprestazioni += id_tipoprestazione + "&";
+              });
 
-          var oraObbligatoria = gruppoPrestazione["oraObbligatoria"]
-          var quantita = element.quantita;
-          var durata = element.durata;
-          var oraInizio = element.oraInizio;
-          alert(oraInizio)
-          var oraFine = element.oraFine;
-          var pianificata = element.pianificata;
-          var erogata = element.erogata;
-          var fatturabile = element.fatturabile;
-          var numeroOperatori = element.numeroOperatori;
-          var note = element.note;
-          var tipiPrestazione = element.tipiPrestazione;
+              var first = element.first;
+              var last = element.last;
 
-          $.each(tipiPrestazione, function (index, tipoprestazione) {
-            var id_tipoprestazione = tipoprestazione.id;
-            var codice_tipoprestazione = tipoprestazione.codice;
-            var descrizione_tipoprestazione = tipoprestazione.descrizione;
-            str_prestazione += codice_tipoprestazione + " " + descrizione_tipoprestazione + "\n";
-            idprestazioni += id_tipoprestazione + "&";
-          });
+              var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/interventi/ricerca?id.equals=' + idIntervento;
+             
+              $.ajax({
+                url: url,
+                type: 'GET',
+                xhrFields: { withCredentials: true },
+                crossDomain: true,
+                dataType: 'json',
+                beforeSend: function (xhr) {
+                  xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                  xhr.setRequestHeader('idEnte', idente);
+                  xhr.setRequestHeader('idStruttura', idstruttura);
+                },
+                success: function (res, textStatus, jqXHR) {
+                  var content = res.content
+                  $.each(content, function (index, element) {
+                    var soggetto = element.titolare.soggetto
+                    var id_soggetto = soggetto.id
+                    var idIcaro = soggetto.idIcaro
+                    var codiceFiscale = soggetto.codiceFiscale
+                    var nome = soggetto.nome
+                    var cognome = soggetto.cognome
+                    var sesso = soggetto.sesso
+                    var dataNascita = soggetto.dataNascita
+                    var codiceIstatNazioneNascita = soggetto.codiceIstatNazioneNascita
+                    var luogoNascita = soggetto.luogoNascita
 
-          var first = element.first;
-          var last = element.last;
+                    var indirizzoResidenza = soggetto.indirizzoResidenza
+                    var indirizzoCompleto = indirizzoResidenza.indirizzoCompleto
+                    var comune = indirizzoResidenza.comune
+                    var provincia = indirizzoResidenza.provincia
+                   
+                    var url = 'https://' + realms + '.icaro.maggioli.cloud/services/soggettiservice/api/soggetti/ricerca?id.equals=' + id_soggetto;
 
-         
-            var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/interventi/ricerca?id.equals=' + idIntervento;
+                    $.ajax({
+                      url: url,
+                      type: 'GET',
+                      xhrFields: { withCredentials: true },
+                      crossDomain: true,
+                      dataType: 'json',
+                      beforeSend: function (xhr) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                        xhr.setRequestHeader('idEnte', idente);
+                        xhr.setRequestHeader('idStruttura', idstruttura);
+                      },
+                      success: function (result, textStatus, jqXHR) {
+                        var content = result.content
 
-          $.ajax({
-            url: url,
-            type: 'GET',
-            xhrFields: { withCredentials: true },
-            crossDomain: true,
-            dataType: 'json',
-            beforeSend: function (xhr) {
-              xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-              xhr.setRequestHeader('idEnte', idente);
-              xhr.setRequestHeader('idStruttura', idstruttura);
-            },
-            success: function (res, textStatus, jqXHR) {
-              var content = res.content
-              $.each(content, function (index, element) {
-                var soggetto = element.titolare.soggetto
-                var id_soggetto = soggetto.id
-                var idIcaro = soggetto.idIcaro
-                var codiceFiscale = soggetto.codiceFiscale
-                var nome = soggetto.nome
-                var cognome = soggetto.cognome
-                var sesso = soggetto.sesso
-                var dataNascita = soggetto.dataNascita
-                var codiceIstatNazioneNascita = soggetto.codiceIstatNazioneNascita
-                var luogoNascita = soggetto.luogoNascita
+                        $.each(content, function (index, element) {
+                          var telefono1 = element.telefono1
+                          var telefono2 = element.telefono2
+                          var telefono3 = element.telefono3
 
-                var indirizzoResidenza = soggetto.indirizzoResidenza
-                var indirizzoCompleto = indirizzoResidenza.indirizzoCompleto
-                var comune = indirizzoResidenza.comune
-                var provincia = indirizzoResidenza.provincia
+                          if (telefono1 == null || telefono1 == "null")
+                            telefono1 = '';
+                          if (telefono2 == null || telefono2 == "null")
+                            telefono2 = '';
 
-                
-                var url = 'https://gateway.icaro-dev.maggioli.cloud/services/soggettiservice/api/soggetti/ricerca?id.equals=' + id_soggetto;
+                          if (telefono3 == null || telefono3 == "null")
+                            telefono3 = '';
+                          var email = element.email
 
-                $.ajax({
-                  url: url,
-                  type: 'GET',
-                  xhrFields: { withCredentials: true },
-                  crossDomain: true,
-                  dataType: 'json',
-                  beforeSend: function (xhr) {
-                    xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-                    xhr.setRequestHeader('idEnte', idente);
-                    xhr.setRequestHeader('idStruttura', idstruttura);
-                  },
-                  success: function (result, textStatus, jqXHR) {
-                    var content = result.content
+                          if (email == null || email == "null")
+                            email = '';
 
-                    $.each(content, function (index, element) {
-                      var telefono1 = element.telefono1
-                      var telefono2 = element.telefono2
-                      var telefono3 = element.telefono3
+                          var note = element.note
+                          if (note == null || note == "null")
+                            note = '';
 
-                      if (telefono1 == null || telefono1 == "null")
-                        telefono1 = '';
-                      if (telefono2 == null || telefono2 == "null")
-                        telefono2 = '';
+                          var class_div = '';
+                          var descr_prestazione = '';
+                          var flag_eseguita = 0;
+                          var h6hour = '';
+                          //oraInizio = "08:14"
+                          if (oraInizio == null || oraInizio == "null") {
+                            class_div = "noneseguita";
+                            descr_prestazione = 'Prestazione non eseguita';
+                            flag_eseguita = 0;
 
-                      if (telefono3 == null || telefono3 == "null")
-                        telefono3 = '';
-                      var email = element.email
+                          }
+                          else if (oraFine == null || oraFine == "null") {
+                            class_div = "eseguitaparziale";
+                            descr_prestazione = 'Prestazione eseguita parziale';
+                            flag_eseguita = 2;
+                            h6hour = '<h6 class="font"><b>Ora inizio: </b>' + oraInizio + '<br></h6>'
 
-                      if (email == null || email == "null")
-                        email = '';
+                          }
+                          else {
+                            class_div = "eseguita";
+                            descr_prestazione = 'Prestazione eseguita';
+                            flag_eseguita = 1;
+                            h6hour = '<h6 class="font"><b>Ora inizio: </b>' + oraInizio + '<br><b>Ora Fine: </b>' + oraFine + '</h6>'
+                          }
 
-                      var note = element.note
-                      if (note == null || note == "null")
-                        note = '';
-
-                      var class_div = '';
-                      var descr_prestazione = '';
-                      var flag_eseguita = 0;
-                      var h6hour = '';
-                      //oraInizio = "08:14"
-                      if (oraInizio == null || oraInizio == "null") {
-                        class_div = "noneseguita";
-                        descr_prestazione = 'Prestazione non eseguita';
-                        flag_eseguita = 0;
-
-                      }
-                      else if (oraFine == null || oraFine == "null") {
-                        class_div = "eseguitaparziale";
-                        descr_prestazione = 'Prestazione eseguita parziale';
-                        flag_eseguita = 2;
-                        h6hour = '<h6 class="font"><b>Ora inizio: </b>' + oraInizio + '<br></h6>'
-
-                      }
-                      else {
-                        class_div = "eseguita";
-                        descr_prestazione = 'Prestazione eseguita';
-                        flag_eseguita = 1;
-                        h6hour = '<h6 class="font"><b>Ora inizio: </b>' + oraInizio + '<br><b>Ora Fine: </b>' + oraFine + '</h6>'
-                      }
-
-                      $("#div_prestazione_dettaglio").append('<div class=" scroll container_div ' + class_div + '" style="padding:5%;">\
+                          $("#div_prestazione_dettaglio").append('<div class=" scroll container_div ' + class_div + '" style="padding:5%;">\
                         <div>\
                           <h6 class="font" style="font-size:11px;"><b>Nominativo: </b>'+ cognome + ' ' + nome + '</h6>\
                           <h6 class="font" style="font-size:11px;"><b>Indirizzo: </b>'+ indirizzoCompleto + ')</h6>\
@@ -256,10 +253,10 @@
                           '+ h6hour + '\
                         </div>\
                       </div>');
-                    });
+                        });
 
-                    if (oraInizio == null || oraInizio == "null") {
-                      $("#div_prestazione_dettaglio").append('<div class="container_div_home d-flex flex-row" style="margin-top:10%;">\
+                        if (oraInizio == null || oraInizio == "null") {
+                          $("#div_prestazione_dettaglio").append('<div class="container_div_home d-flex flex-row" style="margin-top:10%;">\
                           <div>\
                             <img src="./img/calendar.svg">\
                           </div>\
@@ -267,9 +264,9 @@
                             <h6 class="font"><b>Iniza Prestazione</b></h6>\
                           </div>\
                         </div>');
-                    }
-                    else if (oraFine == null || oraFine == "null") {
-                      $("#div_prestazione_dettaglio").append('<div class="container_div_home d-flex flex-row" style="margin-top:10%;">\
+                        }
+                        else if (oraFine == null || oraFine == "null") {
+                          $("#div_prestazione_dettaglio").append('<div class="container_div_home d-flex flex-row" style="margin-top:10%;">\
                           <div>\
                             <img src="./img/calendar.svg">\
                           </div>\
@@ -278,68 +275,68 @@
                           </div>\
                         </div>');
 
-                    }
-                  },
-                  error: function (xhr, status, error) {
-                    if (xhr.status == 401) {
-                      $("#div_spinner").hide();
-                      function alertDismissed() {
-                        localStorage.removeItem('access_token');
-                        window.location = "icaro_login.html";
+                        }
+                      },
+                      error: function (xhr, status, error) {
+                        if (xhr.status == 401) {
+                          $("#div_spinner").hide();
+                          function alertDismissed() {
+                            localStorage.removeItem('access_token');
+                            window.location = "icaro_login.html";
+                          }
+
+                          navigator.notification.alert(
+                            'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                            alertDismissed,         // callback
+                            'Attenzione',            // title
+                            'Ok'                  // buttonName
+                          );
+                        }
                       }
+                    });
 
-                      navigator.notification.alert(
-                        'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
-                        alertDismissed,         // callback
-                        'Attenzione',            // title
-                        'Ok'                  // buttonName
-                      );
+                  });
+                },
+                error: function (xhr, status, error) {
+                  if (xhr.status == 401) {
+                    $("#div_spinner").hide();
+                    function alertDismissed() {
+                      localStorage.removeItem('access_token');
+                      window.location = "icaro_login.html";
                     }
+
+                    navigator.notification.alert(
+                      'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                      alertDismissed,         // callback
+                      'Attenzione',            // title
+                      'Ok'                  // buttonName
+                    );
                   }
-                });
-
-              });
-            },
-            error: function (xhr, status, error) {
-              if (xhr.status == 401) {
-                $("#div_spinner").hide();
-                function alertDismissed() {
-                  localStorage.removeItem('access_token');
-                  window.location = "icaro_login.html";
                 }
+              });
+            });
+            $("#div_spinner").hide();
+          },
+          error: function (xhr, status, error) {
+            //alert(xhr.responseText)
 
-                navigator.notification.alert(
-                  'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
-                  alertDismissed,         // callback
-                  'Attenzione',            // title
-                  'Ok'                  // buttonName
-                );
+            if (xhr.status == 401) {
+              $("#div_spinner").hide();
+              function alertDismissed() {
+                localStorage.removeItem('access_token');
+                window.location = "icaro_login.html";
               }
+
+              navigator.notification.alert(
+                'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                alertDismissed,         // callback
+                'Attenzione',            // title
+                'Ok'                  // buttonName
+              );
             }
-          });
-        });
-        $("#div_spinner").hide();
-      },
-      error: function (xhr, status, error) {
-        //alert(xhr.responseText)
-
-        if (xhr.status == 401) {
-          $("#div_spinner").hide();
-          function alertDismissed() {
-            localStorage.removeItem('access_token');
-            window.location = "icaro_login.html";
           }
-
-          navigator.notification.alert(
-            'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
-            alertDismissed,         // callback
-            'Attenzione',            // title
-            'Ok'                  // buttonName
-          );
-        }
-      }
-    });
-
+        });
+     
   }
 
   function back() {
@@ -439,62 +436,61 @@
     };
     var aBODY = JSON.stringify(body);
     //alert(aBODY)
-    //var version_code = localStorage.getItem('version');
-    //version_code = version_code.split(".").join("");
-
-
-    var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni';
-
-    $.ajax({
-      url: url,
-      type: "POST",
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-      xhrFields: { withCredentials: true },
-      data: aBODY,
-      beforeSend: function (xhr) {
-        xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-        xhr.setRequestHeader('idEnte', idente);
-        xhr.setRequestHeader('idStruttura', idstruttura);
-      },
-      success: function (data, status, settings) {
-        navigator.notification.alert(
-          'Timbratura avvenuta con successo',  // message
-        );
-        var aDATA = JSON.stringify(data);
-
-        //alert("DATA: " + aDATA)
-
-
-      },
-      error: function (jqXHR, textStatus, errorThrown) {
-        alert("ERRORE: " + jqXHR.responseText)
-
-        if (xhr.status == 401) {
-          $("#div_spinner").hide();
-          function alertDismissed() {
-            localStorage.removeItem('access_token');
-            window.location = "icaro_login.html";
-          }
-
+    var version_code = localStorage.getItem('version');
+    version_code = version_code.split(".").join("");
+    
+      var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni';
+      
+      $.ajax({
+        url: url,
+        type: "POST",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        xhrFields: { withCredentials: true },
+        data: aBODY,
+        beforeSend: function (xhr) {
+          xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+          xhr.setRequestHeader('idEnte', idente);
+          xhr.setRequestHeader('idStruttura', idstruttura);
+        },
+        success: function (data, status, settings) {
           navigator.notification.alert(
-            'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
-            alertDismissed,         // callback
-            'Attenzione',            // title
-            'Ok'                  // buttonName
+            'Timbratura avvenuta con successo',  // message
           );
+          var aDATA = JSON.stringify(data);
+
+          //alert("DATA: " + aDATA)
+
+
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+          alert("ERRORE: " + jqXHR.responseText)
+
+          if (xhr.status == 401) {
+            $("#div_spinner").hide();
+            function alertDismissed() {
+              localStorage.removeItem('access_token');
+              window.location = "icaro_login.html";
+            }
+
+            navigator.notification.alert(
+              'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+              alertDismissed,         // callback
+              'Attenzione',            // title
+              'Ok'                  // buttonName
+            );
+          }
         }
-      }
-    });
-    /*
-      alert(idprestazioni)
-      alert(idgruppoprestazione)
-    */
-    //$("#div_container").append('<br><br><br><br><br><br><div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-top: 20%;"><span class="">Timbratura in corso...</span></div>');
-    //alert(nfcTag["id"])
+      });
+      /*
+        alert(idprestazioni)
+        alert(idgruppoprestazione)
+      */
+      //$("#div_container").append('<br><br><br><br><br><br><div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-top: 20%;"><span class="">Timbratura in corso...</span></div>');
+      //alert(nfcTag["id"])
 
-    //$("#div_spinner").hide();
-
+      //$("#div_spinner").hide();
+    
   }
 
 

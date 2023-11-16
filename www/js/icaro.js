@@ -22,7 +22,10 @@ function onError(error) {
 */
 function getDate() {
     var d = new Date();
-    var strDate = d.getDate() + "/" + (d.getMonth() + 1) + "/" + d.getFullYear();
+    var mouth=d.getMonth() + 1
+    if(mouth<10)
+        mouth="0"+mouth
+    var strDate = d.getDate() + "/" + mouth + "/" + d.getFullYear();
 
     return strDate;
 }
@@ -40,6 +43,12 @@ function getHeader() {
     var device_model = getLocal("device_model");
     var idutente = getLocal("idutente");
     //var nominativo=getLocal("nominativo");
+    var device_model = getLocal("device_model");
+    var version_code = localStorage.getItem('version');
+    if(version_code!='' && version_code!=null)
+        version_code="V. "+version_code
+    else
+        version_code='';
 
     var string_utente = nominativo + " (" + idutente + ")";
 
@@ -56,8 +65,13 @@ function getHeader() {
             <div style="width:50%; margin-left:5%;>\
                 <h6 style="font-family: Verdana; margin-top:5%; margin-left:5%;" class="style-text"><b>'+ nominativo + '<br>Data: ' + getDate() + '<br>' + dettaglio + '</b></h6>\
             </div>\
-            <div style="width: 20%; margin-right:5%; ">\<button type="button" class="btn btn-warning" onclick="logout();">\Logout\</button>\</div>\
-        </div>';
+            <div style="width: 20%; margin-right:5%; ">\
+                <button type="button" class="btn btn-warning" onclick="logout();">\
+                Logout\
+                </button>\
+            </div>\
+        </div>\
+        <div style="text-align:right; margin-right:5%;"><h6 style="color:white;">'+version_code+'</h6>\</div>';
     //}
 
     $("#div_header_small").html(header_small);
@@ -91,7 +105,17 @@ function logout() {
     function onConfirm(button) {
 
         if (button == 1)
-            window.location = ("icaro_login.html");
+        {
+            localStorage.removeItem("idservizio");
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('idstruttura');
+            localStorage.removeItem('idente');
+            localStorage.removeItem('client_secret');
+            localStorage.removeItem('realm');
+            window.location = ("index.html");
+        }
+        
     }
 
     navigator.notification.confirm(
@@ -303,11 +327,11 @@ function getDATA() {
         case 8:
             month = "08";
             break;
-        case 8:
+        case 9:
             month = "09";
             break;
-
         default:
+            month = currentdate.getMonth() + 1;
             break;
     }
     var datetime = currentdate.getFullYear() + "-" + month + "-" + currentdate.getDate()
@@ -318,18 +342,33 @@ function getDATA() {
 
 function getTIME() {
     var currentdate = new Date();
-    var time = currentdate.getHours() + ":" + currentdate.getMinutes() //+ ":" + currentdate.getSeconds()
+    var minutes=currentdate.getMinutes();
+    if(minutes<10)
+        minutes="0"+minutes
+
+    var time = currentdate.getHours() + ":" + minutes //+ ":" + currentdate.getSeconds()
 
     return time;
 }
 
 function get_formatDATE_standard(data) {
-    var aDATA = data.split("-");
-    var anno = aDATA[0];
-    var mese = aDATA[1];
-    var giorno = aDATA[2];
+    var anno='';
+    var mese='';
+    var giorno='';
 
-    return data_formatted = giorno + '/' + mese + '/' + anno;
+    if(data!=null)
+    {
+        var aDATA = data.split("-");
+        anno = aDATA[0];
+        mese = aDATA[1];
+        giorno = aDATA[2];
+        return data_formatted = giorno + '/' + mese + '/' + anno;
+
+    }
+    else
+        return "";
+    
+
 }
 
 function capitalizeFirstLetter(string) {
@@ -337,29 +376,66 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+function get_url_gateway() {
+    var version_code = localStorage.getItem('version');
+    version_code = version_code.split(".").join("");
+
+    var url = "https://demo.sicare.it/sicare_mobile/icaro-evo/api_" + version_code + "/mobile_icaroevo_action.php?_action=get_url_gateway";
+    $.ajax({
+        url: url,
+        type: "POST",
+        dataType: "html",
+        contentType: 'text/html',
+        success: function (result) {
+            var urlgateway = JSON.parse(result);
+            alert(url)
+            return url;
+        }
+    });
+}
+
+function get_url_keycloak() {
+    var version_code = localStorage.getItem('version');
+    version_code = version_code.split(".").join("");
+
+    var url = "https://demo.sicare.it/sicare_mobile/icaro-evo/api_" + version_code + "/mobile_icaroevo_action.php?_action=get_url_keycloak";
+    $.ajax({
+        url: url,
+        type: "POST",
+        dataType: "html",
+        contentType: 'text/html',
+        success: function (result) {
+            var url = JSON.parse(result);
+            return url;
+
+        }
+    });
+}
 
 function refresh_token() {
     var access_token = localStorage.getItem('access_token');
     var refresh_token = localStorage.getItem('refresh_token');
-    var ora_scadenza_token = localStorage.getItem('ora_scadenza_token');
-    var data_scadenza_token = localStorage.getItem('data_scadenza_token');
+    var scadenza_token = localStorage.getItem('scadenza_token');
+    //alert("scadenza token: "+scadenza_token)
     var realms = localStorage.getItem('realm');
     var client_secret = localStorage.getItem('client_secret');
     var username = localStorage.getItem('username');
     var password = localStorage.getItem('password');
+    let timeObject = new Date();
 
-    var currentdate = new Date();
-    var ora = currentdate.getHours() + ":" + (currentdate.getMinutes()) + ":" + currentdate.getSeconds()
+    timeObject = new Date(timeObject.getTime());
+    //var ora = currentdate.getHours() + ":" + (currentdate.getMinutes()) + ":" + currentdate.getSeconds()
     
-    //alert(timeToSeconds(ora_scadenza_token))
+    //alert(timeObject)
+    //alert(scadenza_token)
     //alert(timeToSeconds(ora))
+    
 
-    //if (oggi != data_scadenza_token) 
-    if (timeToSeconds(ora_scadenza_token) <= timeToSeconds(ora))
-    {
-        var client_id="simeal" //dev
-        //var client_id="icaroevo" //PROD
-
+    //if (scadenza_token <= timeObject)
+    //{
+        //var client_id="simeal" //dev
+        var client_id="icaroevo" //PROD
+       
         var details = {
             'grant_type': 'refresh_token',
             'client_secret': client_secret,
@@ -377,7 +453,8 @@ function refresh_token() {
         }
         formBody = formBody.join("&");
 
-        var url = "https://login-dev.maggiolicloud.it/auth/realms/" + realms + "/protocol/openid-connect/token/";
+        var url = "https://login.maggiolicloud.it/auth/realms/" + realms + "/protocol/openid-connect/token/";
+        
         fetch(url, {
             method: 'POST',
             headers: {
@@ -387,6 +464,7 @@ function refresh_token() {
         }).then((response) => response.json())
             .then((responseData) => {
                 var error=responseData["error_description"]
+                
                 if(error!='Token is not active')
                 {
                     var access_token = responseData['access_token'];
@@ -395,18 +473,18 @@ function refresh_token() {
                     {
                         localStorage.removeItem('access_token');
                         localStorage.removeItem('refresh_token');
-                        localStorage.removeItem('ora_scadenza_token');
-                        localStorage.removeItem('data_scadenza_token');
+                        localStorage.removeItem('scadenza_token');
+
                         var refresh_token = responseData['refresh_token'];
                         var expires_in = responseData['expires_in'];
 
-                        var currentdate = new Date();
-                        var ora_scadenza_token = currentdate.getHours() + ":" + (currentdate.getMinutes() + (expires_in / 60)) //+ ":" + currentdate.getSeconds()
-                        var data_scadenza_token = getDATA()
+                        let timeObject = new Date();
+                        const milliseconds = [expires_in] * 1000;
+                        timeObject = new Date(timeObject.getTime() + milliseconds);
+                        
                         localStorage.setItem('access_token', access_token);
                         localStorage.setItem('refresh_token', refresh_token);
-                        localStorage.setItem('ora_scadenza_token', ora_scadenza_token);
-                        localStorage.setItem('data_scadenza_token', data_scadenza_token);
+                        localStorage.setItem('scadenza_token', timeObject);
 
                     }
                    //alert(localStorage.getItem('access_token'));
@@ -414,8 +492,16 @@ function refresh_token() {
                 }
                 else
                 {
+                    localStorage.removeItem("idservizio");
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('refresh_token');
+                    localStorage.removeItem('idstruttura');
+                    localStorage.removeItem('idente');
+                    localStorage.removeItem('client_secret');
+                    localStorage.removeItem('realm');
+
                     function alertSESSIONE() {
-                        window.location = "icaro_login.html";
+                        window.location = "index.html";
                         return false;
                     }
     
@@ -432,25 +518,33 @@ function refresh_token() {
             }).catch(err => {
                 //alert(err)
 
+                localStorage.removeItem("idservizio");
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
+                localStorage.removeItem('idstruttura');
+                localStorage.removeItem('idente');
+                localStorage.removeItem('client_secret');
+                localStorage.removeItem('realm');
                 function alertDismissed() {
-                    window.location = "icaro_login.html";
+                    window.location = "index.html";
                     return false;
                 }
 
                 navigator.notification.alert(
-                    'Problemi nel refresh token, sarai rindirizzato nella pagina di login ',  // message
+                    'Sessione scaduta, è necessario rifare il login ',  // message
                     alertDismissed,         // callback
                     'Attenzione!',            // title
                     'Chiudi'                  // buttonName
                 );
 
             });
-
+            /*
     }
     else {
       
       console.log("token attivo")
     }
+    */
     
 }
 

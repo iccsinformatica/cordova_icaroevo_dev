@@ -45,7 +45,7 @@
         <img src="./img/freccia_back.svg" onclick="back()">
     </div>
 
-    <div id="div_container" name="div_container">
+    <div id="div_container" name="div_container" style="margin-top: -10%;">
         <div class="fade-in-image" id="div_prestazione_dettaglio" name="div_prestazione_dettaglio">
 
         </div>
@@ -57,11 +57,12 @@
 </html>
 <script>
 
-
     let searchParams = new URLSearchParams(window.location.search)
     var idgruppo = searchParams.get('idgruppo')
     var idtipoprestazione = searchParams.get('idtipoprestazione')
+    var aIDTIPIPRESTAZIONI = idtipoprestazione.split(',');
     var descr_tipoprestazione = searchParams.get('descr_tipoprestazione')
+    //alert(descr_tipoprestazione)
     var idstruttura = localStorage.getItem("idstruttura");
     var idente = localStorage.getItem('idente');
     var idIntervento = searchParams.get('idintervento')
@@ -70,13 +71,21 @@
     var access_token = localStorage.getItem("access_token");
     var realms = localStorage.getItem('realm');
 
+    var pidprestazione = searchParams.get('_idprestazione')
+    var ptabellone = searchParams.get('_tabellone')
+
+    if (pidprestazione == null || pidprestazione == 'null' || pidprestazione == '')
+        pidprestazione = localStorage.getItem('_idprestazione');
+
+    var aIDPRESTAZIONI = []
+    if (pidprestazione != null && pidprestazione != undefined && pidprestazione != '')
+        aIDPRESTAZIONI = pidprestazione.split(',');
+
     var oggi = getDATA();
     document.addEventListener("deviceready", onDeviceReady, false);
-
+    getHeader();
+    refresh_token()
     function onDeviceReady() {
-        getHeader();
-        refresh_token()
-
         var date_forcall = get_currentDATAFORCALL();
         $('#div_prestazione_dettaglio').append('<center><div id="div_spinner" class="lds-ripple"><div></div><div></div></div></center>')
 
@@ -85,10 +94,7 @@
         var aINTERVENTI = [];
         //Con la prima chiamata prendo l'id del soggetto
 
-        //var version_code = localStorage.getItem('version');
-        //version_code = version_code.split(".").join("");
-        
-        var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/interventi/ricerca?id.equals='+ idIntervento;
+        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/interventi/ricerca?id.equals=' + idIntervento;
 
         $.ajax({
             url: url,
@@ -102,6 +108,7 @@
                 xhr.setRequestHeader('idStruttura', idstruttura);
             },
             success: function (res, textStatus, jqXHR) {
+
                 if (res != undefined) {
                     var content = res.content
 
@@ -124,8 +131,7 @@
                         var provincia = indirizzoResidenza.provincia
                         //Prendo tutti i campi necessari del soggetto
 
-                        
-                        var url = "https://gateway.icaro-dev.maggioli.cloud/services/soggettiservice/api/soggetti/ricerca?id.equals=" + id_soggetto;
+                        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/soggettiservice/api/soggetti/ricerca?id.equals=' + id_soggetto;
 
                         $.ajax({
                             url: url,
@@ -174,9 +180,11 @@
                                     var tagNfc = '';
                                     if (JSON_tagNfc != null)
                                         tagNfc = JSON_tagNfc.tagNfc
+
+                                    tagNfc = tagNfc.toUpperCase();
                                     //Prendo tutte le prestazioni effettuate per quell'intervento in quel range di date
-                                    
-                                    var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/erogazioni/ricerca?meseRiferimento=' + date_forcall + '&servizioId.equals=' + idservizio + '&progressivoAnnuo.contains=' + codice_intervento;
+
+                                    var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/erogazioni/ricerca?meseRiferimento=' + date_forcall + '&servizioId.equals=' + idservizio + '&progressivoAnnuo.contains=' + codice_intervento;
 
                                     $.ajax({
                                         url: url,
@@ -205,9 +213,13 @@
                                                     var tipoIntervento = element.tipoIntervento
                                                     var dataInizio = element.dataInizio
                                                     var dataFine = element.dataFine
-                                                    if (dataInizio <= oggi && dataFine >= oggi) {
-                                                        var soggetto = element.soggetto
+                                                    //alert(dataFine)
 
+                                                    //if (dataInizio <= oggi && dataFine >= oggi) 
+
+                                                    if (dataInizio <= oggi) {
+                                                        var soggetto = element.soggetto
+                                                        //alert(soggetto)
                                                         var editabile = element.editabile
                                                         var idErogatore = element.idErogatore
                                                         var denominazioneErogatore = element.denominazioneErogatore
@@ -225,99 +237,164 @@
                                                                 var idaccesso = erogazione.idAccesso
                                                                 var statoValidazione = erogazione.statoValidazione
                                                                 var aPRESTAZIONI = erogazione.prestazioni
+
                                                                 $.each(aPRESTAZIONI, function (index, prestazione) {
                                                                     var idPrestazione = prestazione.idPrestazione
                                                                     var labelGruppoPrestazioni = prestazione.labelGruppoPrestazioni
                                                                     var coloreGruppoPrestazioni = prestazione.coloreGruppoPrestazioni
                                                                     var tipoPrestazione = prestazione.tipoPrestazione
-                                                                    //alert(tipoPrestazione)
-                                                                    //Contollo se quella che sto cercando è dello stesso tipoprestazione, in mancanza dell'idtipoprestazione faccio la ricerca tramite stringa, chiedere se è possibile passarmi l'idtipoprestazione all'interno dell prestazione stessa
-                                                                    if (capitalizeFirstLetter(tipoPrestazione) == descr_tipoprestazione) {
-                                                                        var quantita = prestazione.quantita
-                                                                        var oraInizio = prestazione.oraInizio
-                                                                        var oraFine = prestazione.oraFine
+                                                                    var quantita = prestazione.quantita
+                                                                    var oraInizio = prestazione.oraInizio
+                                                                    var oraFine = prestazione.oraFine
+                                                                    var erogata = prestazione.erogata
+                                                                    var fatturabile = prestazione.fatturabile
+                                                                    var durata = prestazione.durata
+                                                                    var longitudine_inizio = prestazione.longitudine_inizio
+                                                                    var latitudine_inizio = prestazione.latitudine_inizio
+                                                                    var longitudine_fine = prestazione.longitudine_fine
+                                                                    var latitudine_fine = prestazione.latitudine_fine
 
+                                                                    
+                                                                    if ($.inArray(idPrestazione, aIDPRESTAZIONI) !== -1) {
                                                                         if ((oraInizio != null && oraFine == null) || (oraInizio != null && oraFine != null)) {
-                                                                            var erogata = prestazione.erogata
-                                                                            var fatturabile = prestazione.fatturabile
-                                                                            var durata = prestazione.durata
+                                                                            var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni/ricerca?id.equals=' + idPrestazione;
+                                                                            $.ajax({
+                                                                                url: url,
+                                                                                type: 'GET',
+                                                                                xhrFields: { withCredentials: true },
+                                                                                crossDomain: true,
+                                                                                dataType: 'json',
+                                                                                beforeSend: function (xhr) {
+                                                                                    xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                                                                                    xhr.setRequestHeader('idEnte', idente);
+                                                                                    xhr.setRequestHeader('idStruttura', idstruttura);
+                                                                                },
+                                                                                success: function (res, textStatus, jqXHR) {
+                                                                                    var contentPrestazione = res.content
+                                                                                    //alert(JSON.stringify(contentPrestazione))
 
-                                                                            var class_div = '';
-                                                                            var descr_prestazione = '';
-                                                                            var h6hour = '';
+                                                                                    //controllo se la prestazione che ho selezionato ha gli stessi tipi prestazione
+                                                                                    var flag_continua = true;
+                                                                                    $.each(contentPrestazione, function (index, element) {
 
-                                                                            if (oraInizio == null || oraInizio == "null") {
-                                                                                class_div = "noneseguita";
-                                                                                descr_prestazione = 'Prestazione non eseguita';
+                                                                                        var tipiPrestazione = element.tipiPrestazione
 
-                                                                            }
-                                                                            else if (oraFine == null || oraFine == "null") {
-                                                                                class_div = "eseguitaparziale";
-                                                                                descr_prestazione = 'Prestazione eseguita parziale';
-                                                                                h6hour = '<h6 class="font""><b>Ora inizio: </b>' + oraInizio + '<br></h6>'
+                                                                                        $.each(tipiPrestazione, function (index, tipoprestazione) {
+                                                                                            if ($.inArray(tipoprestazione.id, aIDTIPIPRESTAZIONI) == -1)
+                                                                                                flag_continua = false;
+                                                                                        })
 
-                                                                            }
-                                                                            else {
-                                                                                class_div = "eseguita";
-                                                                                descr_prestazione = 'Prestazione eseguita';
-                                                                                h6hour = '<h6 class="font" ><b>Ora inizio: </b>' + oraInizio + '<br><b>Ora Fine: </b>' + oraFine + '</h6>'
-                                                                            }
+                                                                                    })
 
-                                                                            $("#div_prestazione_dettaglio").append('<div class=" container_div ' + class_div + '" style="padding:5%;">\
-                                                                        <div>\
-                                                                            <h6 class="font" ><b>Nominativo: </b>'+ cognome + ' ' + nome + '</h6>\
-                                                                            <h6 class="font" ><b>Indirizzo: </b>'+ indirizzoCompleto + ')</h6>\
-                                                                            <h6 class="font" ><b>Comune: </b>'+ comune + ' (' + provincia + ')</h6>\
-                                                                            <h6 class="font" ><b>Telefono </b>: <ul>'+ telefono1 + ' ' + telefono2 + ' ' + telefono3 + '</ul></h6>\
-                                                                            <h6 class="font" ><b>Email: </b>'+ email + '</h6>\
-                                                                            <input type="hidden" id="idaccesso" name="idaccesso" value="'+ idaccesso + '"/>\
-                                                                            <h6 class="font"  ><b>Tipo: </b>'+ tipoPrestazione + '</h6>\
-                                                                            <hr>\
-                                                                            <h6 class="font" ><b>Note: </b>'+ note + '</h6>\
-                                                                            <hr>\
-                                                                            <h6 class="font" ><b>Data: </b>'+ get_formatDATE_standard(data_prestazione) + '</h6>\
-                                                                            '+ h6hour + '\
-                                                                        </div>\
-                                                                    </div>');
-                                                                            /*
-                                                                                if (oraInizio == null) {
-                                                                                    $("#div_prestazione_dettaglio").append('<div class="container_div_home d-flex flex-row" style="margin-top:10%;">\
-                                                                                <div>\
-                                                                                    <img src="./img/calendar.svg">\
-                                                                                </div>\
-                                                                                <div style="margin-left:10%;" onclick="readNFC(\''+ idPrestazione + '\',\'' + oraInizio + '\')">\
-                                                                                    <h6 class="font-menu"><b>Iniza Prestazione</b></h6>\
-                                                                                </div>\
-                                                                                </div>\
-                                                                                <hr>');
+                                                                                    if (flag_continua) {
+                                                                                        var class_div = '';
+                                                                                        var descr_prestazione = '';
+                                                                                        var h6hour = '';
+
+                                                                                        if (oraInizio == null || oraInizio == "null") {
+                                                                                            class_div = "noneseguita";
+                                                                                            descr_prestazione = 'Prestazione non eseguita';
+                                                                                        }
+                                                                                        else if (oraFine == null || oraFine == "null") {
+                                                                                            class_div = "eseguitaparziale";
+                                                                                            descr_prestazione = 'Prestazione eseguita parziale';
+                                                                                            h6hour = '<h6 class="font""><b>Ora inizio: </b>' + oraInizio + '<br></h6>'
+                                                                                        }
+                                                                                        else {
+                                                                                            class_div = "eseguita";
+                                                                                            descr_prestazione = 'Prestazione eseguita';
+                                                                                            h6hour = '<h6 class="font" ><b>Ora inizio: </b>' + oraInizio + '<br><b>Ora Fine: </b>' + oraFine + '</h6>'
+                                                                                        }
+
+                                                                                        $("#div_prestazione_dettaglio").append('<div class=" container_div ' + class_div + '" style="padding:5%;">\
+                                                                                                <div>\
+                                                                                                    <h6 class="font" ><b>Nominativo: </b>'+ cognome + ' ' + nome + '</h6>\
+                                                                                                    <h6 class="font" ><b>Indirizzo: </b>'+ indirizzoCompleto + ')</h6>\
+                                                                                                    <h6 class="font" ><b>Comune: </b>'+ comune + ' (' + provincia + ')</h6>\
+                                                                                                    <h6 class="font" ><b>Telefono </b>: <ul>'+ telefono1 + ' ' + telefono2 + ' ' + telefono3 + '</ul></h6>\
+                                                                                                    <h6 class="font" ><b>Email: </b>'+ email + '</h6>\
+                                                                                                    <input type="hidden" id="idaccesso" name="idaccesso" value="'+ idaccesso + '"/>\
+                                                                                                    <h6 class="font"  ><b>Tipo: </b>'+ tipoPrestazione + '</h6>\
+                                                                                                    <hr>\
+                                                                                                    <h6 class="font" ><b>Note: </b>'+ note + '</h6>\
+                                                                                                    <hr>\
+                                                                                                    <h6 class="font" ><b>Data: </b>'+ get_formatDATE_standard(data_prestazione) + '</h6>\
+                                                                                                    '+ h6hour + '\
+                                                                                                </div>\
+                                                                                            </div>');
+
+                                                                                        if (oraFine == null) {
+                                                                                            $("#div_prestazione_dettaglio").append('<div class="container_div_prestazione d-flex flex-row" style="margin-top:5%;" onclick="readNFC(\'' + idPrestazione + '\',\'' + oraInizio + '\',\'' + tagNfc + '\')">\
+                                                                                            <div>\
+                                                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play" viewBox="0 0 16 16">\
+                                                                                                    <path d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>\
+                                                                                                </svg>\
+                                                                                                <b>Termina con NFC</b>\
+                                                                                            </div>\
+                                                                                            </div>\
+                                                                                            ');
+
+                                                                                            $("#div_prestazione_dettaglio").append('<div class="container_div_prestazione d-flex flex-row" style="margin-top:5%;" onclick="openCAMERA(\'' + idPrestazione + '\',\'' + oraInizio + '\',\'' + codiceFiscale + '\',\'' + latitudine_inizio + '\',\'' + longitudine_inizio + '\')">\
+                                                                                            <div>\
+                                                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play" viewBox="0 0 16 16">\
+                                                                                                    <path d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>\
+                                                                                                </svg>\
+                                                                                                <b>Termina con Fotocamera</b>\
+                                                                                            </div>\
+                                                                                            </div>\
+                                                                                            ');
+
+                                                                                            $("#div_prestazione_dettaglio").append('<div class="container_div_elimina d-flex flex-row" onclick="eliminaConfirm(\'' + idPrestazione + '\')">\
+                                                                                            <div>\
+                                                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\
+                                                                                                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>\
+                                                                                                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>\
+                                                                                                </svg>\
+                                                                                                <b>Elimina Prestazione</b>\
+                                                                                            </div>\
+                                                                                            </div>\
+                                                                                            ');
+                                                                                        }
+                                                                                    }
+                                                                                    else {
+                                                                                        $("#div_prestazione_dettaglio").append('<div class=" container_div_prestazione noneseguita" style="padding:5%;">\
+                                                                                                <div>\
+                                                                                                <h6 class="font"><b>Nominativo: </b>'+ cognome + ' ' + nome + '</h6>\
+                                                                                                <h6 class="font"><b>Indirizzo: </b>'+ indirizzoCompleto + ')</h6>\
+                                                                                                <h6 class="font"><b>Comune: </b>'+ comune + ' (' + provincia + ')</h6>\
+                                                                                                <h6 class="font"><b>Telefono </b>: '+ telefono1 + ' ' + telefono2 + ' ' + telefono3 + '</h6>\
+                                                                                                <h6 class="font"><b>Email: </b>'+ email + '</h6>\
+                                                                                                <h6 class="font"><b>Tipo: </b>'+ descr_tipoprestazione + '</h6>\
+                                                                                                <hr>\
+                                                                                                <h6 class="font"><b>Note: </b>'+ note + '</h6>\
+                                                                                                <hr>\
+                                                                                                </div>\
+                                                                                            </div>');
+
+                                                                                        $("#div_prestazione_dettaglio").append('<div class="container_div_home d-flex flex-row" onclick="readNFC(' + null + ',' + null + ',\'' + tagNfc + '\')">\
+                                                                                                <div>\
+                                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play" viewBox="0 0 16 16">\
+                                                                                                        <path d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>\
+                                                                                                    </svg>\
+                                                                                                    <b>Inizia con NFC</b>\
+                                                                                                </div>\
+                                                                                            </div>');
+
+                                                                                        $("#div_prestazione_dettaglio").append('<div class="container_div_home d-flex flex-row" onclick="openCAMERA(' + null + ',' + null + ',\'' + codiceFiscale + '\')">\
+                                                                                                <div>\
+                                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play" viewBox="0 0 16 16">\
+                                                                                                        <path d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>\
+                                                                                                    </svg>\
+                                                                                                    <b>Inizia con Fotocamera</b>\
+                                                                                                </div>\
+                                                                                            </div>');
+                                                                                    }
+
+
                                                                                 }
-                                                                                else 
-                                                                            */
-                                                                            if (oraFine == null) {
-                                                                                $("#div_prestazione_dettaglio").append('<div class="container_div_prestazione d-flex flex-row" style="margin-top:5%;" onclick="readNFC(\'' + idPrestazione + '\',\'' + oraInizio + '\',\'' + tagNfc + '\')">\
-                                                                                <div>\
-                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play" viewBox="0 0 16 16">\
-                                                                                        <path d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>\
-                                                                                    </svg>\
-                                                                                    <b>Termina Prestazione</b>\
-                                                                                </div>\
-                                                                                </div>\
-                                                                                ');
-                                                                            }
-                                                                            if (oraFine == null) {
-                                                                                $("#div_prestazione_dettaglio").append('<div class="container_div_elimina d-flex flex-row" onclick="eliminaConfirm(\'' + idPrestazione + '\')">\
-                                                                                <div>\
-                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">\
-                                                                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>\
-                                                                                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>\
-                                                                                    </svg>\
-                                                                                    <b>Elimina Prestazione</b>\
-                                                                                </div>\
-                                                                                </div>\
-                                                                                ');
-                                                                            }
-                                                                            flag_prestazione_attiva = true;
+                                                                            })
                                                                         }
+                                                                        flag_prestazione_attiva = true;
                                                                     }
                                                                 });
                                                             }
@@ -325,29 +402,40 @@
 
                                                         if (!flag_prestazione_attiva) {
                                                             $("#div_prestazione_dettaglio").append('<div class=" container_div_prestazione noneseguita" style="padding:5%;">\
-                                                            <div>\
-                                                            <h6 class="font"><b>Nominativo: </b>'+ cognome + ' ' + nome + '</h6>\
-                                                            <h6 class="font"><b>Indirizzo: </b>'+ indirizzoCompleto + ')</h6>\
-                                                            <h6 class="font"><b>Comune: </b>'+ comune + ' (' + provincia + ')</h6>\
-                                                            <h6 class="font"><b>Telefono </b>: '+ telefono1 + ' ' + telefono2 + ' ' + telefono3 + '</h6>\
-                                                            <h6 class="font"><b>Email: </b>'+ email + '</h6>\
-                                                            <h6 class="font"><b>Tipo: </b>'+ descr_tipoprestazione + '</h6>\
-                                                            <hr>\
-                                                            <h6 class="font"><b>Note: </b>'+ note + '</h6>\
-                                                            <hr>\
-                                                            </div>\
-                                                        </div>');
+                                                                    <div>\
+                                                                    <h6 class="font"><b>Nominativo: </b>'+ cognome + ' ' + nome + '</h6>\
+                                                                    <h6 class="font"><b>Indirizzo: </b>'+ indirizzoCompleto + ')</h6>\
+                                                                    <h6 class="font"><b>Comune: </b>'+ comune + ' (' + provincia + ')</h6>\
+                                                                    <h6 class="font"><b>Telefono </b>: '+ telefono1 + ' ' + telefono2 + ' ' + telefono3 + '</h6>\
+                                                                    <h6 class="font"><b>Email: </b>'+ email + '</h6>\
+                                                                    <h6 class="font"><b>Tipo: </b>'+ descr_tipoprestazione + '</h6>\
+                                                                    <hr>\
+                                                                    <h6 class="font"><b>Note: </b>'+ note + '</h6>\
+                                                                    <hr>\
+                                                                    </div>\
+                                                                </div>');
 
                                                             $("#div_prestazione_dettaglio").append('<div class="container_div_home d-flex flex-row" onclick="readNFC(' + null + ',' + null + ',\'' + tagNfc + '\')">\
-                                                            <div>\
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play" viewBox="0 0 16 16">\
-                                                                    <path d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>\
-                                                                </svg>\
-                                                                <b>Iniza Prestazione</b>\
-                                                            </div>\
-                                                        </div>\
-                                                    ');
+                                                                    <div>\
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play" viewBox="0 0 16 16">\
+                                                                            <path d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>\
+                                                                        </svg>\
+                                                                        <b>Inizia con NFC</b>\
+                                                                    </div>\
+                                                                </div>');
+
+                                                            $("#div_prestazione_dettaglio").append('<div class="container_div_home d-flex flex-row" onclick="openCAMERA(' + null + ',' + null + ',\'' + codiceFiscale + '\')">\
+                                                                    <div>\
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play" viewBox="0 0 16 16">\
+                                                                            <path d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>\
+                                                                        </svg>\
+                                                                        <b>Inizia con Fotocamera</b>\
+                                                                    </div>\
+                                                                </div>');
                                                         }
+                                                    }
+                                                    else {
+
                                                     }
                                                 }
                                             });
@@ -405,35 +493,191 @@
                 }
             }
         });
-
-    
     }
 
 
 
     function back() {
-        window.location = "icaro_ordine_servizio_dettaglio.html?_idintervento=" + idIntervento + "&codice=" + codice_intervento;
+        if (ptabellone == "1")
+            window.location = "icaro_prestazioni_iniziate.html"
+        else
+            window.location = "icaro_ordine_servizio_dettaglio.html?_idintervento=" + idIntervento + "&codice=" + codice_intervento;
+
     }
 
     function readNFC(idPrestazione, ora_inizio, tagNfc_associato) {
-        window.nfc.enabled(
-            () => {
-                // NFC enabled
-                this.registerTagEvent(idPrestazione, ora_inizio, tagNfc_associato)
 
-            },
-            (error) => {
-                if (error === 'NFC_DISABLED') {
-                    // Trigger the phone settings to enable the NFC settings
-                    window.nfc.showSettings()
-                } else if (error === 'NO_NFC') {
-                    navigator.notification.alert('Cannot scan NFC', () => { }, 'No NFC', 'OK')
+        if (isiOS()) 
+        {
+
+            //per prima cosa controllo se c'è la geolocalizzazione attiva
+            navigator.geolocation.getCurrentPosition(onSuccess, onError);
+
+            var onSuccess = function (position) {
+                alert('Latitude: ' + position.coords.latitude + '\n' +
+                    'Longitude: ' + position.coords.longitude + '\n' +
+                    'Altitude: ' + position.coords.altitude + '\n' +
+                    'Accuracy: ' + position.coords.accuracy + '\n' +
+                    'Altitude Accuracy: ' + position.coords.altitudeAccuracy + '\n' +
+                    'Heading: ' + position.coords.heading + '\n' +
+                    'Speed: ' + position.coords.speed + '\n' +
+                    'Timestamp: ' + position.timestamp + '\n');
+
+                window.nfc.enabled(
+                    () => {
+                        // NFC enabled
+                        this.registerTagEvent(idPrestazione, ora_inizio, tagNfc_associato)
+
+                    },
+                    (error) => {
+                        if (error === 'NFC_DISABLED') {
+                            // Trigger the phone settings to enable the NFC settings
+                            window.nfc.showSettings()
+                        } else if (error === 'NO_NFC') {
+                            navigator.notification.alert('Cannot scan NFC', () => { }, 'No NFC', 'OK')
+                        }
+                    }
+                )
+
+            };
+
+            function onError(error) {
+                function alertDismissed() {
+
                 }
-            }
-        )
 
+                navigator.notification.alert(
+                    'GPS non rilevato, impossibile procedere con la timbratura',  // message
+                    alertDismissed(),
+                    "Attenzione!",
+                    "OK",
+                );
+
+                //alert('code: '    + error.code    + '\n' + 'message: ' + error.message + '\n');
+            }
+        }
+        else
+        {
+            cordova.plugins.diagnostic.isGpsLocationEnabled(function (enabled) {
+                if (!enabled) {
+                    function onRequestSuccess(success) {
+                        var onSuccess = function (position) {
+                            /*
+                            alert('Latitude: ' + position.coords.latitude + '\n' +
+                                'Longitude: ' + position.coords.longitude + '\n' +
+                                'Altitude: ' + position.coords.altitude + '\n' +
+                                'Accuracy: ' + position.coords.accuracy + '\n' +
+                                'Altitude Accuracy: ' + position.coords.altitudeAccuracy + '\n' +
+                                'Heading: ' + position.coords.heading + '\n' +
+                                'Speed: ' + position.coords.speed + '\n' +
+                                'Timestamp: ' + position.timestamp + '\n');
+                            */
+                                window.nfc.enabled(
+                                    () => {
+                                        // NFC enabled
+                                        this.registerTagEvent(idPrestazione, ora_inizio, tagNfc_associato, position.coords.latitude, position.coords.longitude )
+
+                                    },
+                                    (error) => {
+                                        if (error === 'NFC_DISABLED') {
+                                            // Trigger the phone settings to enable the NFC settings
+                                            window.nfc.showSettings()
+                                        } else if (error === 'NO_NFC') {
+                                            navigator.notification.alert('Cannot scan NFC', () => { }, 'No NFC', 'OK')
+                                        }
+                                    }
+                                )
+                        };
+
+
+                        function onError(error) {
+
+                            function alertDismissed() {
+                            }
+
+                            navigator.notification.alert(
+                                'GPS non rilevato, impossibile procedere con la timbratura',  // message
+                                alertDismissed(),
+                                "Attenzione!",
+                                "OK",
+                            );
+
+                            //alert('code: '    + error.code    + '\n' + 'message: ' + error.message + '\n');
+                        }
+
+                        navigator.geolocation.getCurrentPosition(onSuccess, onError);
+                    }
+
+                    function onRequestFailure(error) {
+                        if (error.code !== cordova.plugins.locationAccuracy.ERROR_USER_DISAGREED) {
+                            if (window.confirm('Impossibile impostare automaticamente la modalità di localizzazione su "Alta precisione". Desideri passare alla pagina Impostazioni posizione e farlo manualmente?')) {
+                                cordova.plugins.diagnostic.switchToLocationSettings();
+                            }
+                        }
+                    }
+
+                    cordova.plugins.locationAccuracy.request(onRequestSuccess, onRequestFailure, cordova.plugins.locationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY);
+
+
+
+                }
+                else 
+                {
+                    var onSuccess = function (position) {
+                        /*
+                        alert('Latitude: ' + position.coords.latitude + '\n' +
+                            'Longitude: ' + position.coords.longitude + '\n' +
+                            'Altitude: ' + position.coords.altitude + '\n' +
+                            'Accuracy: ' + position.coords.accuracy + '\n' +
+                            'Altitude Accuracy: ' + position.coords.altitudeAccuracy + '\n' +
+                            'Heading: ' + position.coords.heading + '\n' +
+                            'Speed: ' + position.coords.speed + '\n' +
+                            'Timestamp: ' + position.timestamp + '\n');
+                        */
+                            window.nfc.enabled(
+                                    () => {
+                                        // NFC enabled
+                                        this.registerTagEvent(idPrestazione, ora_inizio, tagNfc_associato, position.coords.latitude, position.coords.longitude )
+
+                                    },
+                                    (error) => {
+                                        if (error === 'NFC_DISABLED') {
+                                            // Trigger the phone settings to enable the NFC settings
+                                            window.nfc.showSettings()
+                                        } else if (error === 'NO_NFC') {
+                                            navigator.notification.alert('Cannot scan NFC', () => { }, 'No NFC', 'OK')
+                                        }
+                                    }
+                                )
+                    };
+
+
+                    function onError(error) {
+
+                        function alertDismissed() {
+                        }
+
+                        navigator.notification.alert(
+                            'GPS non rilevato, impossibile procedere con la timbratura',  // message
+                            alertDismissed(),
+                            "Attenzione!",
+                            "OK",
+                        );
+
+                        //alert('code: '    + error.code    + '\n' + 'message: ' + error.message + '\n');
+                    }
+
+                    navigator.geolocation.getCurrentPosition(onSuccess, onError);
+                }
+
+            }, function (error) {
+                alert("The following error occurred: " + error);
+            });
+        
+        }
     }
-    function registerTagEvent(idPrestazione, ora_inizio, tagNfc_associato) {
+
+    function registerTagEvent(idPrestazione, ora_inizio, tagNfc_associato, latitudine, longitudine) {
         window.nfc.addNdefListener(
             this.onSuccess(idPrestazione, ora_inizio, tagNfc_associato),
             () => {
@@ -450,32 +694,21 @@
     }
 
     function onSuccess(idPrestazione, ora_inizio, tagNfc_associato) {
-        //$('#div_container').append('<center><div style="position: absolute;display: block;" id="div_spinner" class="lds-ripple"><div></div><div></div></div></center>')
 
-        //$("#div_container").append('<div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-left: 50%; margin-top: 50%;"><span class="visually-hidden">Caricamento in corso...</span></div>');
         navigator.notification.beep(1);
         if (isiOS()) {
-            // Promise
+
             nfc.scanTag().then(
                 tag => {
-                    console.log(JSON.stringify(tag))
                     if (tag.id) {
-                        console.log(nfc.bytesToHexString(tag.id));
+                        console.log("2.1: " + nfc.bytesToHexString(tag.id));
+                        readSuccess(tag, idPrestazione, ora_inizio, tagNfc_associato)
                     }
                 },
                 err => console.log(err)
             );
 
-            // Async Await
-            try {
-                let tag = nfc.scanTag();
-                console.log(JSON.stringify(tag));
-                if (tag.id) {
-                    console.log(nfc.bytesToHexString(tag.id));
-                }
-            } catch (err) {
-                console.log(err);
-            }
+
         }
         else {
 
@@ -487,30 +720,43 @@
 
     function readSuccess(nfcTag, idPrestazione, ora_inizio, tagNfc_associato) {
         //controllare il tag
-        var tagId = nfc.bytesToHexString(nfcTag.id);
+        var tagId = nfc.bytesToHexString(nfcTag.id); //tag della tessera
+        //var tagId = nfcTag.id;
+        tagId = tagId.toUpperCase();
         var realms = localStorage.getItem('realm');
 
+        //tagNfc_associato -> tag associato all'utente
+        //tagId="0482510AE37380"
+        //alert(tagId)
+        //alert(tagNfc_associato)
         if (tagNfc_associato == tagId) {
             var ora = getTIME()
-            //alert(ora)
+
             //return false;
             //alert(ora_inizio)
-            var aIDPRESTAZIONI = [];
-            aIDPRESTAZIONI.push(idtipoprestazione)
 
-            //var version_code = localStorage.getItem('version');
-           // version_code = version_code.split(".").join("");
+            /*
+            if (idtipoprestazione.indexOf(',') != -1) 
+                var aIDTIPIPRESTAZIONI = idtipoprestazione.split(',');
+            else
+            {
+                var aIDTIPIPRESTAZIONI = [];
+                aIDTIPIPRESTAZIONI.push(idtipoprestazione)
+            }
+            */
+            //var count_element=aIDTIPIPRESTAZIONI.length;
+
+            //return false;
 
             if (ora_inizio == null && idPrestazione == null) //prestazione nuova faccio una POST
             {
                 //!!!!controllare se il soggetto corrisponde al soggetto del tag nfc!!!
-                var aIDPRESTAZIONI = [];
-                aIDPRESTAZIONI.push(idtipoprestazione)
+
 
                 var body = {
                     'idIntervento': idIntervento,
                     'idGruppoPrestazione': idgruppo,
-                    'listaIdTipiPrestazione': aIDPRESTAZIONI,
+                    'listaIdTipiPrestazione': aIDTIPIPRESTAZIONI,
                     'quantita': 1, //è il numero di prestazioni
                     "oraInizio": ora,
                     'erogata': true,
@@ -519,9 +765,9 @@
                 };
                 var aBODY = JSON.stringify(body);
                 //alert("POST: " + aBODY)
-                //return false;                           
+                //return false;
 
-                var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni';
+                var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni';
 
                 $.ajax({
                     url: url,
@@ -549,8 +795,8 @@
                         var aBODYrequest = JSON.stringify(body_request);
 
                         //alert("Body : " + aBODYrequest)
-                        
-                        var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni-operatori';
+
+                        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni-operatori';
 
                         $.ajax({
                             url: url,
@@ -569,10 +815,26 @@
                                 //alert("associazione creata")
                                 var result = JSON.stringify(data);
                                 //alert("DATA: " + result)
-                                navigator.notification.activityStop();
-                                function alertDismissed() {
-                                    window.location = "icaro_prestazione_dettaglio.html?idgruppo=" + idgruppo + "&idtipoprestazione=" + idtipoprestazione + "&descr_tipoprestazione=" + descr_tipoprestazione + "&idintervento=" + idIntervento + "&codice=" + codice_intervento;
+                                if (!isiOS())
+                                    navigator.notification.activityStop();
+
+                                var IDprestazioni = localStorage.getItem('_idprestazione');
+                                var aIDPRESTAZIONI = []
+                                if (IDprestazioni != null && IDprestazioni != undefined && IDprestazioni != '') {
+                                    aIDPRESTAZIONI = IDprestazioni.split(',');
+                                    if ($.inArray(idprestazione, aIDPRESTAZIONI) !== -1)
+                                        aIDPRESTAZIONI.push(idprestazione)
                                 }
+                                else
+                                    aIDPRESTAZIONI.push(idprestazione)
+
+
+                                localStorage.setItem('_idprestazione', aIDPRESTAZIONI);
+
+                                function alertDismissed() {
+                                    window.location = "icaro_prestazione_dettaglio.html?idgruppo=" + idgruppo + "&idtipoprestazione=" + idtipoprestazione + "&descr_tipoprestazione=" + descr_tipoprestazione + "&idintervento=" + idIntervento + "&codice=" + codice_intervento + "&_idprestazione=" + idprestazione + "&_tabellone=" + ptabellone + "&_tabellone=" + ptabellone;;
+                                }
+
 
                                 navigator.notification.alert(
                                     'Timbratura avvenuta con successo',  // message
@@ -582,7 +844,9 @@
                                 );
                             },
                             error: function (jqXHR, textStatus, errorThrown) {
-                                navigator.notification.activityStop();
+                                if (!isiOS())
+                                    navigator.notification.activityStop();
+
                                 if (jqXHR.status == 401) {
                                     //$("#div_spinner").hide();
                                     function alertDismissed_login() {
@@ -602,7 +866,8 @@
                         });
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
-                        navigator.notification.activityStop();
+                        if (!isiOS())
+                            navigator.notification.activityStop();
                         if (jqXHR.status == 401) {
                             //$("#div_spinner").hide();
                             function alertDismissed_login() {
@@ -620,7 +885,7 @@
                             alert("ERRORE: " + jqXHR.responseText)
                     }
                 });
-            
+
             }
             else {
 
@@ -631,7 +896,7 @@
                     'version': 0,
                     'idAccesso': idaccesso,
                     "idGruppoPrestazione": idgruppo,
-                    'listaIdTipiPrestazione': aIDPRESTAZIONI,
+                    'listaIdTipiPrestazione': aIDTIPIPRESTAZIONI,
                     'quantita': 1, //è il numero di prestazioni
                     'oraInizio': ora_inizio,
                     'oraFine': ora,
@@ -641,67 +906,77 @@
                 var aBODY = JSON.stringify(body);
                 //alert("PUT: " + aBODY)
                 //return false;
-               
-                var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni';
+
+                var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni';
 
                 $.ajax({
-                            url: url,
-                            type: "PUT",
-                            contentType: "application/json; charset=utf-8",
-                            dataType: "json",
-                            xhrFields: { withCredentials: true },
-                            data: aBODY,
-                            beforeSend: function (xhr) {
-                                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-                                xhr.setRequestHeader('idEnte', idente);
-                                xhr.setRequestHeader('idStruttura', idstruttura);
-                            },
-                            success: function (data, status, settings) {
-                                var aDATA = JSON.stringify(data);
-                                navigator.notification.activityStop();
-                                //$("#div_spinner").hide();
-                                function alertDismissed() {
-                                    window.location = "icaro_prestazione_dettaglio.html?idgruppo=" + idgruppo + "&idtipoprestazione=" + idtipoprestazione + "&descr_tipoprestazione=" + descr_tipoprestazione + "&idintervento=" + idIntervento + "&codice=" + codice_intervento;
-                                }
+                    url: url,
+                    type: "PUT",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    xhrFields: { withCredentials: true },
+                    data: aBODY,
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                        xhr.setRequestHeader('idEnte', idente);
+                        xhr.setRequestHeader('idStruttura', idstruttura);
+                    },
+                    success: function (data, status, settings) {
+                        var aDATA = JSON.stringify(data);
+                        if (!isiOS())
+                            navigator.notification.activityStop();
+                        //$("#div_spinner").hide();
+                        var IDprestazioni = localStorage.getItem('_idprestazione');
+                        var aIDPRESTAZIONI = IDprestazioni.split(',')
 
-                                navigator.notification.alert(
-                                    'Timbratura avvenuta con successo',  // message
-                                    alertDismissed(),
-                                    "Success",
-                                    "Continua",
-                                );
+                        if ($.inArray(idPrestazione, aIDPRESTAZIONI) !== -1) {
+                            aIDPRESTAZIONI = $.grep(aIDPRESTAZIONI, function (value) {
+                                return value != idPrestazione;
+                            });
+                        }
+
+                        localStorage.setItem('_idprestazione', aIDPRESTAZIONI);
+
+                        function alertDismissed() {
+                            window.location = "icaro_prestazione_dettaglio.html?idgruppo=" + idgruppo + "&idtipoprestazione=" + idtipoprestazione + "&descr_tipoprestazione=" + descr_tipoprestazione + "&idintervento=" + idIntervento + "&codice=" + codice_intervento + "&_idprestazione=" + idPrestazione + "&_tabellone=" + ptabellone;;
+                        }
+
+                        navigator.notification.alert(
+                            'Timbratura avvenuta con successo',  // message
+                            alertDismissed(),
+                            "Success",
+                            "Continua",
+                        );
 
 
-                                //alert("DATA: " + aDATA)
+                        //alert("DATA: " + aDATA)
 
-                            },
-                            error: function (jqXHR, textStatus, errorThrown) {
-                                navigator.notification.activityStop();
-                                if (jqXHR.status == 401) {
-                                    //$("#div_spinner").hide();
-                                    function alertDismissed_login() {
-                                        window.location = "icaro_login.html";
-                                    }
-
-                                    navigator.notification.alert(
-                                        'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
-                                        alertDismissed_login,         // callback
-                                        'Attenzione',            // title
-                                        'Ok'                  // buttonName
-                                    );
-                                }
-                                else
-                                    alert("ERRORE: " + jqXHR.responseText)
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        if (!isiOS())
+                            navigator.notification.activityStop();
+                        if (jqXHR.status == 401) {
+                            //$("#div_spinner").hide();
+                            function alertDismissed_login() {
+                                window.location = "icaro_login.html";
                             }
-                        });
-                  
+
+                            navigator.notification.alert(
+                                'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                                alertDismissed_login,         // callback
+                                'Attenzione',            // title
+                                'Ok'                  // buttonName
+                            );
+                        }
+                        else
+                            alert("ERRORE: " + jqXHR.responseText)
+                    }
+                });
             }
-
-
-
         }
         else {
-            navigator.notification.activityStop();
+            if (!isiOS())
+                navigator.notification.activityStop();
 
             function alertDismissed() {
 
@@ -723,7 +998,7 @@
         if (idPrestazione != 0 && idPrestazione != null && idPrestazione != 'undefined') {
 
             navigator.notification.confirm(
-                'Vuoi procedere con l\'eliminazione definitiva della prestazione?',
+                'Vuoi procedere con l\'eliminazione definitiva della prestazione selezionata?',
                 elimina,
                 'Elimina',
                 ['Elimina', 'Annulla']
@@ -731,10 +1006,8 @@
 
             function elimina(button) {
                 if (button == 1) {
-                    //var version_code = localStorage.getItem('version');
-                    //version_code = version_code.split(".").join("");
 
-                    var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni/' + idPrestazione
+                    var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni/' + idPrestazione;
 
                     $.ajax({
                         url: url,
@@ -749,8 +1022,20 @@
                         },
                         success: function (data, status, settings) {
                             if (data == true) {
+
+                                var IDprestazioni = localStorage.getItem('_idprestazione');
+                                var aIDPRESTAZIONI = IDprestazioni.split(',')
+
+                                if ($.inArray(idPrestazione, aIDPRESTAZIONI) !== -1) {
+                                    aIDPRESTAZIONI = $.grep(aIDPRESTAZIONI, function (value) {
+                                        return value != idPrestazione;
+                                    });
+                                }
+
+                                localStorage.setItem('_idprestazione', aIDPRESTAZIONI);
+
                                 function alertDismissed() {
-                                    window.location = "icaro_prestazione_dettaglio.html?idgruppo=" + idgruppo + "&idtipoprestazione=" + idtipoprestazione + "&descr_tipoprestazione=" + descr_tipoprestazione + "&idintervento=" + idIntervento + "&codice=" + codice_intervento;
+                                    window.location = "icaro_prestazione_dettaglio.html?idgruppo=" + idgruppo + "&idtipoprestazione=" + idtipoprestazione + "&descr_tipoprestazione=" + descr_tipoprestazione + "&idintervento=" + idIntervento + "&codice=" + codice_intervento + "&_tabellone=" + ptabellone;;
                                 }
 
                                 navigator.notification.alert(
@@ -782,9 +1067,525 @@
                                 alert("ERRORE: " + jqXHR.responseText)
                         }
                     });
-                
+
                 }
             }
         }
     }
+
+
+    function openCAMERA(idPrestazione, ora_inizio, codice_fiscale) {
+
+        if (isiOS()) {
+            var onSuccess = function (position) {
+                alert('Latitude: ' + position.coords.latitude + '\n' +
+                    'Longitude: ' + position.coords.longitude + '\n' +
+                    'Altitude: ' + position.coords.altitude + '\n' +
+                    'Accuracy: ' + position.coords.accuracy + '\n' +
+                    'Altitude Accuracy: ' + position.coords.altitudeAccuracy + '\n' +
+                    'Heading: ' + position.coords.heading + '\n' +
+                    'Speed: ' + position.coords.speed + '\n' +
+                    'Timestamp: ' + position.timestamp + '\n');
+
+                cordova.plugins.barcodeScanner.scan(
+                    function (result) {
+                        if (result.text != '') {
+                            if (result.text == codice_fiscale)
+                                readSuccessCAMERA(result.text, idPrestazione, ora_inizio, codice_fiscale, position.coords.latitude, position.coords.longitude)
+                            else {
+                                function alertDismissed() {
+
+                                }
+
+                                navigator.notification.alert(
+                                    'Tessera associata ad un altro beneficiario!\nImpossibile procedere con la timbratura',  // message
+                                    alertDismissed,         // callback
+                                    'Attenzione!',            // title
+                                    'Ok'                  // buttonName
+                                );
+                            }
+                        }
+                        else {
+                            function alertDismissed() {
+
+                            }
+
+                            navigator.notification.alert(
+                                'Anomalia nella lettura della tessera, tag vuoto',  // message
+                                alertDismissed,         // callback
+                                'Attenzione!',            // title
+                                'Ok'                  // buttonName
+                            );
+
+                        }
+                    },
+                    function (error) {
+                        alert("Scanning failed: " + error);
+                    },
+                    {
+                        preferFrontCamera: false, // iOS and Android
+                        showFlipCameraButton: true, // iOS and Android
+                        showTorchButton: true, // iOS and Android
+                        torchOn: false, // Android, launch with the torch switched on (if available)
+                        saveHistory: true, // Android, save scan history (default false)
+                        prompt: "Inquadra il codice a barre della tessera", // Android
+                        resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+                        formats: "QR_CODE,PDF_417,Code39", // default: all but PDF_417 and RSS_EXPANDED
+                        //orientation : "landscape", // Android only (portrait|landscape), default unset so it rotates with the device
+                        disableAnimations: true, // iOS
+                        disableSuccessBeep: false // iOS and Android
+                    }
+                );
+            };
+
+
+            function onError(error) {
+
+                function alertDismissed() {
+                }
+
+                navigator.notification.alert(
+                    'GPS non rilevato, impossibile procedere con la timbratura',  // message
+                    alertDismissed(),
+                    "Attenzione!",
+                    "OK",
+                );
+
+                //alert('code: '    + error.code    + '\n' + 'message: ' + error.message + '\n');
+            }
+
+            navigator.geolocation.getCurrentPosition(onSuccess, onError);
+        }
+        else {
+            cordova.plugins.diagnostic.isGpsLocationEnabled(function (enabled) {
+                if (!enabled) {
+                    function onRequestSuccess(success) {
+                        var onSuccess = function (position) {
+                            alert('Latitude: ' + position.coords.latitude + '\n' +
+                                'Longitude: ' + position.coords.longitude + '\n' +
+                                'Altitude: ' + position.coords.altitude + '\n' +
+                                'Accuracy: ' + position.coords.accuracy + '\n' +
+                                'Altitude Accuracy: ' + position.coords.altitudeAccuracy + '\n' +
+                                'Heading: ' + position.coords.heading + '\n' +
+                                'Speed: ' + position.coords.speed + '\n' +
+                                'Timestamp: ' + position.timestamp + '\n');
+
+                            cordova.plugins.barcodeScanner.scan(
+                                function (result) {
+                                    if (result.text != '') {
+                                        if (result.text == codice_fiscale)
+                                            readSuccessCAMERA(result.text, idPrestazione, ora_inizio, codice_fiscale, position.coords.latitude, position.coords.longitude)
+                                        else {
+                                            function alertDismissed() {
+
+                                            }
+
+                                            navigator.notification.alert(
+                                                'Tessera associata ad un altro beneficiario!\nImpossibile procedere con la timbratura',  // message
+                                                alertDismissed,         // callback
+                                                'Attenzione!',            // title
+                                                'Ok'                  // buttonName
+                                            );
+                                        }
+                                    }
+                                    else {
+                                        function alertDismissed() {
+
+                                        }
+
+                                        navigator.notification.alert(
+                                            'Anomalia nella lettura della tessera, tag vuoto',  // message
+                                            alertDismissed,         // callback
+                                            'Attenzione!',            // title
+                                            'Ok'                  // buttonName
+                                        );
+
+                                    }
+                                },
+                                function (error) {
+                                    alert("Scanning failed: " + error);
+                                },
+                                {
+                                    preferFrontCamera: false, // iOS and Android
+                                    showFlipCameraButton: true, // iOS and Android
+                                    showTorchButton: true, // iOS and Android
+                                    torchOn: false, // Android, launch with the torch switched on (if available)
+                                    saveHistory: true, // Android, save scan history (default false)
+                                    prompt: "Inquadra il codice a barre della tessera", // Android
+                                    resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+                                    formats: "QR_CODE,PDF_417,Code39", // default: all but PDF_417 and RSS_EXPANDED
+                                    //orientation : "landscape", // Android only (portrait|landscape), default unset so it rotates with the device
+                                    disableAnimations: true, // iOS
+                                    disableSuccessBeep: false // iOS and Android
+                                }
+                            );
+                        };
+
+
+                        function onError(error) {
+
+                            function alertDismissed() {
+                            }
+
+                            navigator.notification.alert(
+                                'GPS non rilevato, impossibile procedere con la timbratura',  // message
+                                alertDismissed(),
+                                "Attenzione!",
+                                "OK",
+                            );
+
+                            //alert('code: '    + error.code    + '\n' + 'message: ' + error.message + '\n');
+                        }
+
+                        navigator.geolocation.getCurrentPosition(onSuccess, onError);
+                    }
+
+                    function onRequestFailure(error) {
+                        if (error.code !== cordova.plugins.locationAccuracy.ERROR_USER_DISAGREED) {
+                            if (window.confirm('Impossibile impostare automaticamente la modalità di localizzazione su "Alta precisione". Desideri passare alla pagina Impostazioni posizione e farlo manualmente?')) {
+                                cordova.plugins.diagnostic.switchToLocationSettings();
+                            }
+                        }
+                    }
+
+                    cordova.plugins.locationAccuracy.request(onRequestSuccess, onRequestFailure, cordova.plugins.locationAccuracy.REQUEST_PRIORITY_HIGH_ACCURACY);
+
+
+
+                }
+                else 
+                {
+                    var onSuccess = function (position) {
+                        alert('Latitude: ' + position.coords.latitude + '\n' +
+                            'Longitude: ' + position.coords.longitude + '\n' +
+                            'Altitude: ' + position.coords.altitude + '\n' +
+                            'Accuracy: ' + position.coords.accuracy + '\n' +
+                            'Altitude Accuracy: ' + position.coords.altitudeAccuracy + '\n' +
+                            'Heading: ' + position.coords.heading + '\n' +
+                            'Speed: ' + position.coords.speed + '\n' +
+                            'Timestamp: ' + position.timestamp + '\n');
+
+                        cordova.plugins.barcodeScanner.scan(
+                            function (result) {
+                                if (result.text != '') {
+                                    if (result.text == codice_fiscale)
+                                        readSuccessCAMERA(result.text, idPrestazione, ora_inizio, codice_fiscale, position.coords.latitude, position.coords.longitude)
+                                    else {
+                                        function alertDismissed() {
+
+                                        }
+
+                                        navigator.notification.alert(
+                                            'Tessera associata ad un altro beneficiario!\nImpossibile procedere con la timbratura',  // message
+                                            alertDismissed,         // callback
+                                            'Attenzione!',            // title
+                                            'Ok'                  // buttonName
+                                        );
+                                    }
+                                }
+                                else {
+                                    function alertDismissed() {
+
+                                    }
+
+                                    navigator.notification.alert(
+                                        'Anomalia nella lettura della tessera, tag vuoto',  // message
+                                        alertDismissed,         // callback
+                                        'Attenzione!',            // title
+                                        'Ok'                  // buttonName
+                                    );
+
+                                }
+                            },
+                            function (error) {
+                                alert("Scanning failed: " + error);
+                            },
+                            {
+                                preferFrontCamera: false, // iOS and Android
+                                showFlipCameraButton: true, // iOS and Android
+                                showTorchButton: true, // iOS and Android
+                                torchOn: false, // Android, launch with the torch switched on (if available)
+                                saveHistory: true, // Android, save scan history (default false)
+                                prompt: "Inquadra il codice a barre della tessera", // Android
+                                resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+                                formats: "QR_CODE,PDF_417,Code39", // default: all but PDF_417 and RSS_EXPANDED
+                                //orientation : "landscape", // Android only (portrait|landscape), default unset so it rotates with the device
+                                disableAnimations: true, // iOS
+                                disableSuccessBeep: false // iOS and Android
+                            }
+                        );
+                    };
+
+
+                    function onError(error) {
+
+                        function alertDismissed() {
+                        }
+
+                        navigator.notification.alert(
+                            'GPS non rilevato, impossibile procedere con la timbratura',  // message
+                            alertDismissed(),
+                            "Attenzione!",
+                            "OK",
+                        );
+
+                        //alert('code: '    + error.code    + '\n' + 'message: ' + error.message + '\n');
+                    }
+
+                    navigator.geolocation.getCurrentPosition(onSuccess, onError);
+                }
+
+            }, function (error) {
+                alert("The following error occurred: " + error);
+            });
+        }
+
+    }
+
+    function readSuccessCAMERA(codicefiscale_letto, idPrestazione, ora_inizio, codicefiscale_associato, latitudine, longitudine) {
+
+        var realms = localStorage.getItem('realm');
+
+        if (codicefiscale_letto == codicefiscale_associato) {
+            var ora = getTIME()
+
+            if (ora_inizio == null && idPrestazione == null) //prestazione nuova faccio una POST
+            {
+
+                var body = {
+                    'idIntervento': idIntervento,
+                    'idGruppoPrestazione': idgruppo,
+                    'listaIdTipiPrestazione': aIDTIPIPRESTAZIONI,
+                    'quantita': 1, //è il numero di prestazioni
+                    "oraInizio": ora,
+                    'erogata': true,
+                    'fatturabile': true,
+                    'dataAccesso': oggi
+                };
+                var aBODY = JSON.stringify(body);
+                //alert("POST: " + aBODY)
+                //return false;
+
+                var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni';
+
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    xhrFields: { withCredentials: true },
+                    data: aBODY,
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                        xhr.setRequestHeader('idEnte', idente);
+                        xhr.setRequestHeader('idStruttura', idstruttura);
+                    },
+                    success: function (data, status, settings) {
+
+                        var idprestazione = data.id;
+                        //alert("ID prestazione: " + idprestazione)
+                        var username = localStorage.getItem('username');
+
+                        var body_request = {
+                            'idPrestazione': idprestazione,
+                            'cognome': username,
+                            'nome': username,
+                        };
+                        var aBODYrequest = JSON.stringify(body_request);
+
+                        //alert("Body : " + aBODYrequest)
+
+                        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni-operatori';
+
+                        $.ajax({
+                            url: url,
+                            type: "POST",
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            xhrFields: { withCredentials: true },
+                            data: aBODYrequest,
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                                xhr.setRequestHeader('idEnte', idente);
+                                xhr.setRequestHeader('idStruttura', idstruttura);
+                            },
+                            success: function (data, status, settings) {
+                                //$("#div_spinner").hide();
+                                //alert("associazione creata")
+                                var result = JSON.stringify(data);
+                                //alert("DATA: " + result)
+
+                                var IDprestazioni = localStorage.getItem('_idprestazione');
+                                var aIDPRESTAZIONI = []
+                                if (IDprestazioni != null && IDprestazioni != undefined && IDprestazioni != '') {
+                                    aIDPRESTAZIONI = IDprestazioni.split(',');
+                                    if ($.inArray(idprestazione, aIDPRESTAZIONI) !== -1)
+                                        aIDPRESTAZIONI.push(idprestazione)
+                                }
+                                else
+                                    aIDPRESTAZIONI.push(idprestazione)
+
+
+                                localStorage.setItem('_idprestazione', aIDPRESTAZIONI);
+
+                                function alertDismissed() {
+                                    window.location = "icaro_prestazione_dettaglio.html?idgruppo=" + idgruppo + "&idtipoprestazione=" + idtipoprestazione + "&descr_tipoprestazione=" + descr_tipoprestazione + "&idintervento=" + idIntervento + "&codice=" + codice_intervento + "&_idprestazione=" + idprestazione + "&_tabellone=" + ptabellone + "&_tabellone=" + ptabellone;;
+                                }
+
+
+                                navigator.notification.alert(
+                                    'Timbratura avvenuta con successo',  // message
+                                    alertDismissed(),
+                                    "Success",
+                                    "Continua",
+                                );
+                            },
+                            error: function (jqXHR, textStatus, errorThrown) {
+
+                                localStorage.removeItem('access_token');
+
+                                if (jqXHR.status == 401) {
+                                    //$("#div_spinner").hide();
+                                    function alertDismissed_login() {
+                                        window.location = "index.html";
+                                    }
+
+                                    navigator.notification.alert(
+                                        'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                                        alertDismissed_login,         // callback
+                                        'Attenzione',            // title
+                                        'Ok'                  // buttonName
+                                    );
+                                }
+                                else
+                                    alert("ERRORE: " + jqXHR.responseText)
+                            }
+                        });
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+
+                        localStorage.removeItem('access_token');
+
+                        if (jqXHR.status == 401) {
+                            //$("#div_spinner").hide();
+                            function alertDismissed_login() {
+                                window.location = "index.html";
+                            }
+
+                            navigator.notification.alert(
+                                'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                                alertDismissed_login,         // callback
+                                'Attenzione',            // title
+                                'Ok'                  // buttonName
+                            );
+                        }
+                        else
+                            alert("ERRORE: " + jqXHR.responseText)
+                    }
+                });
+
+            }
+            else {
+
+                var idaccesso = $('#idaccesso').val()
+
+                var body = {
+                    'id': idPrestazione,
+                    'version': 0,
+                    'idAccesso': idaccesso,
+                    "idGruppoPrestazione": idgruppo,
+                    'listaIdTipiPrestazione': aIDTIPIPRESTAZIONI,
+                    'quantita': 1, //è il numero di prestazioni
+                    'oraInizio': ora_inizio,
+                    'oraFine': ora,
+                    "erogata": true,
+                    "fatturabile": true
+                };
+                var aBODY = JSON.stringify(body);
+                //alert("PUT: " + aBODY)
+                //return false;
+
+                var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni';
+
+                $.ajax({
+                    url: url,
+                    type: "PUT",
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    xhrFields: { withCredentials: true },
+                    data: aBODY,
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                        xhr.setRequestHeader('idEnte', idente);
+                        xhr.setRequestHeader('idStruttura', idstruttura);
+                    },
+                    success: function (data, status, settings) {
+                        var aDATA = JSON.stringify(data);
+                        if (!isiOS())
+                            navigator.notification.activityStop();
+                        //$("#div_spinner").hide();
+                        var IDprestazioni = localStorage.getItem('_idprestazione');
+                        var aIDPRESTAZIONI = IDprestazioni.split(',')
+
+                        if ($.inArray(idPrestazione, aIDPRESTAZIONI) !== -1) {
+                            aIDPRESTAZIONI = $.grep(aIDPRESTAZIONI, function (value) {
+                                return value != idPrestazione;
+                            });
+                        }
+
+                        localStorage.setItem('_idprestazione', aIDPRESTAZIONI);
+
+                        function alertDismissed() {
+                            window.location = "icaro_prestazione_dettaglio.html?idgruppo=" + idgruppo + "&idtipoprestazione=" + idtipoprestazione + "&descr_tipoprestazione=" + descr_tipoprestazione + "&idintervento=" + idIntervento + "&codice=" + codice_intervento + "&_idprestazione=" + idPrestazione + "&_tabellone=" + ptabellone;;
+                        }
+
+                        navigator.notification.alert(
+                            'Timbratura avvenuta con successo',  // message
+                            alertDismissed(),
+                            "Success",
+                            "Continua",
+                        );
+
+
+                        //alert("DATA: " + aDATA)
+
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        localStorage.removeItem('access_token');
+
+                        if (jqXHR.status == 401) {
+                            //$("#div_spinner").hide();
+                            function alertDismissed_login() {
+                                window.location = "index.html";
+                            }
+
+                            navigator.notification.alert(
+                                'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                                alertDismissed_login,         // callback
+                                'Attenzione',            // title
+                                'Ok'                  // buttonName
+                            );
+                        }
+                        else
+                            alert("ERRORE: " + jqXHR.responseText)
+                    }
+                });
+            }
+        }
+        else {
+
+            function alertDismissed() {
+
+            }
+
+            navigator.notification.alert(
+                'Tessera associata ad un altro beneficiario!\nImpossibile procedere con la timbratura',  // message
+                alertDismissed,         // callback
+                'Attenzione!',            // title
+                'Ok'                  // buttonName
+            );
+        }
+
+    }
+
 </script>

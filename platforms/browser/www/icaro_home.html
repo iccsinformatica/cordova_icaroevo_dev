@@ -11,9 +11,9 @@
         content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, viewport-fit=cover, height=device-height">
     <meta name="color-scheme" content="light dark">
 
-    <link rel="stylesheet" href="/css/icaro.css">
-    <link rel="stylesheet" href="/css/index.css">
-    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/icaro.css">
+    <link rel="stylesheet" href="./css/index.css">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
 
     <script src="./cordova.js"></script>
     <script src="./js/index.js"></script>
@@ -56,12 +56,22 @@
 
         <div class="container_div_home d-flex flex-row " style="padding:5%;" onclick="openPRESTAZIONIESEGUITE()">
            <span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-table" viewBox="0 0 16 16">
-                <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z"/>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-check" viewBox="0 0 16 16">
+                <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.708l.547.548 1.17-1.951a.5.5 0 1 1 .858.514ZM11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>
+                <path d="M8.256 14a4.474 4.474 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10c.26 0 .507.009.74.025.226-.341.496-.65.804-.918C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4s1 1 1 1h5.256Z"/>
               </svg>
            </span>
                 <div style="margin-left: 10%;"><b>Prestazioni eseguite</b></div>
         </div>
+
+        <div class="container_div_home d-flex flex-row " style="padding:5%;" onclick="openPRESTAZIONIINIZIATE()">
+            <span>
+             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-table" viewBox="0 0 16 16">
+                 <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z"/>
+               </svg>
+            </span>
+                 <div style="margin-left: 10%;"><b>Prestazioni iniziate</b></div>
+         </div>
 
         <!--div class="container_div_home d-flex flex-row">
             <div>
@@ -80,24 +90,28 @@
 
 </html>
 <script>
-    document.addEventListener("deviceready", onDeviceReady, false);
+    //document.addEventListener("deviceready", onDeviceReady, false);
     //$("#container").append('<br><br><br><br><br><br><div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-top: 50%;"><span class="visually-hidden">Caricamento in corso...</span></div>');
     $('#container').append('<div style="margin-top:50%;" id="div_spinner" class="lds-ripple"><div></div><div></div></div>')
 
-    function onDeviceReady() {
-        getHeader();
-        refresh_token()
-        
-        $("#div_spinner").hide();
-    }
+    
+    getHeader();
+    refresh_token()
+    $("#div_spinner").hide();
+   
 
 
     function openINTERVENTI() {
+       
         window.location = "icaro_ordini_servizio_scelta.html";
     }
 
     function openPRESTAZIONIESEGUITE() {
         window.location = "icaro_prestazioni_eseguite.html";
+    }
+
+    function openPRESTAZIONIINIZIATE() {
+        window.location = "icaro_prestazioni_iniziate.html";
     }
 
     function scaricaORDINISERVIZIO() {

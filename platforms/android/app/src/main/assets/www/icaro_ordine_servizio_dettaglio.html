@@ -17,7 +17,8 @@
   <link rel="stylesheet" href="./css/fontawesome-all.min.css">
   <link rel="stylesheet" href="./css/fontawesome.css">
   <link rel="stylesheet" href="./css/fontawesome.min.css">
-
+  <script src="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.jquery.min.js"></script>
+  <link href="https://cdn.rawgit.com/harvesthq/chosen/gh-pages/chosen.min.css" rel="stylesheet"/>
   <script src="./cordova.js"></script>
   <script src="./js/index.js"></script>
   <script src="./js/bootstrap.bundle.min.js"></script>
@@ -57,7 +58,7 @@
 
     <div class="fade-in-image" style="padding-left: 10%; padding-right: 10%; margin-top: 10%;" id="div_tipiprestazione"
       name="div_tipiprestazione">
-      <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" id="idtipoprestazione"
+      <select data-placeholder="Seleziona le prestazioni" class="form-select form-select-lg mb-3 chosen-select" multiple  aria-label=".form-select-lg example" id="idtipoprestazione"
         name="idtipoprestazione" onchange="get_button_continua()">
       </select>
     </div>
@@ -89,15 +90,15 @@
   var realms = localStorage.getItem('realm');
 
   var access_token = localStorage.getItem("access_token");
-  //var version_code = localStorage.getItem('version');
-  //version_code = version_code.split(".").join("");
+  var version_code = localStorage.getItem('version');
+  version_code = version_code.split(".").join("");
 
   document.addEventListener("deviceready", onDeviceReady, false);
-
-  function onDeviceReady() {
-    getHeader();
-    
-    refresh_token()
+  getHeader();
+  refresh_token()
+  function onDeviceReady() 
+  {
+   
     $("#div_continua").hide();
     $("#div_tipiprestazione").hide();
 
@@ -106,50 +107,49 @@
 
     //$('#div_container').append('<div class="loading" id="div_spinner"><div class="loader"></div></div>')
     //$("#div_container").append('<div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-left: 50%; margin-top: 50%;"><span class="visually-hidden">Caricamento in corso...</span></div>');
-   
-    var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/gruppi-prestazione/ricerca/' + idIntervento;
+ 
+        
+        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/gruppi-prestazione/ricerca/' + idIntervento;
       
-  
-    $.ajax({
-      url: url,
-      type: 'GET',
-      xhrFields: { withCredentials: true },
-      crossDomain: true,
-      dataType: 'json',
-      beforeSend: function (xhr) {
-          xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-          xhr.setRequestHeader('idEnte', idente);
-          xhr.setRequestHeader('idStruttura', idstruttura);
-      },
-      success: function (result, textStatus, jqXHR) {
+        $.ajax({
+          url: url,
+          type: 'GET',
+          xhrFields: { withCredentials: true },
+          crossDomain: true,
+          dataType: 'json',
+          beforeSend: function (xhr) {
+              xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+              xhr.setRequestHeader('idEnte', idente);
+              xhr.setRequestHeader('idStruttura', idstruttura);
+          },
+          success: function (result, textStatus, jqXHR) {
 
-        $.each(result, function (index, element) {
-          
-          $('#idgruppo').append('<option value="' + element.id + '">' + capitalizeFirstLetter(element.descrizione) + '</option>');
-        });
+            $.each(result, function (index, element) {
+             
+              $('#idgruppo').append('<option value="' + element.id + '">' + capitalizeFirstLetter(element.descrizione) + '</option>');
+            });
 
-        //$("#div_spinner").hide();
+            //$("#div_spinner").hide();
 
-      },
-      error: function (xhr, status, error) {
-        //alert(xhr.responseText)
+          },
+          error: function (xhr, status, error) {
+            //alert(xhr.responseText)
 
-        if (xhr.status == 401) {
-          $("#div_spinner").hide();
-          function alertDismissed() {
-            window.location = "icaro_login.html";
+            if (xhr.status == 401) {
+              $("#div_spinner").hide();
+              function alertDismissed() {
+                window.location = "icaro_login.html";
+              }
+
+              navigator.notification.alert(
+                'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                alertDismissed,         // callback
+                'Attenzione',            // title
+                'Ok'                  // buttonName
+              );
+            }
           }
-
-          navigator.notification.alert(
-            'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
-            alertDismissed,         // callback
-            'Attenzione',            // title
-            'Ok'                  // buttonName
-          );
-        }
-      }
-    });
-
+        });    
 
   }
 
@@ -166,55 +166,53 @@
     if (idgruppo != '') {
       $("#div_tipiprestazione").show();
 
-      //var version_code = localStorage.getItem('version');
-      //version_code = version_code.split(".").join("");
+      var version_code = localStorage.getItem('version');
+      version_code = version_code.split(".").join("");
+      
+      var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/gruppi-prestazioni-tipi/ricerca/' + idgruppo;
+          
+      $.ajax({
+        url: url,
+        type: 'GET',
+        xhrFields: { withCredentials: true },
+        crossDomain: true,
+        dataType: 'json',
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+            xhr.setRequestHeader('idEnte', idente);
+            xhr.setRequestHeader('idStruttura', idstruttura);
+        },
+        success: function (result, textStatus, jqXHR) {
+          var content = result.content
+          //$('#idtipoprestazione').append('<option value="0">Seleziona il tipo di prestazione</option>');
 
-          var url = 'https://gateway.icaro-dev.maggioli.cloud/services/interventiservice/api/gruppi-prestazioni-tipi/ricerca/' + idgruppo;
-
-          $.ajax({
-            url: url,
-            type: 'GET',
-            xhrFields: { withCredentials: true },
-            crossDomain: true,
-            dataType: 'json',
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-                xhr.setRequestHeader('idEnte', idente);
-                xhr.setRequestHeader('idStruttura', idstruttura);
-            },
-            success: function (result, textStatus, jqXHR) {
-              var content = result.content
-              $('#idtipoprestazione').append('<option value="0">Seleziona il tipo di prestazione</option>');
-
-              $.each(content, function (index, element) {
-                $('#idtipoprestazione').append('<option value="' + element.idTipoPrestazione + '">' + capitalizeFirstLetter(element.codice + ' - ' + element.descrizione) + '</option>');
-              });
-
-
-
-            },
-            error: function (xhr, status, error) {
-              //alert(xhr.responseText)
-
-              if (xhr.status == 401) {
-                $("#div_spinner").hide();
-                function alertDismissed() {
-                  window.location = "icaro_login.html";
-                }
-
-                navigator.notification.alert(
-                  'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
-                  alertDismissed,         // callback
-                  'Attenzione',            // title
-                  'Ok'                  // buttonName
-                );
-              }
-              else
-                alert("ACCESSO NEGATO: "+xhr.responseText)
-            }
+          $.each(content, function (index, element) {
+            $('#idtipoprestazione').append('<option value="' + element.idTipoPrestazione + '">' + capitalizeFirstLetter(element.codice + ' - ' + element.descrizione) + '</option>');
           });
 
-          //$('#idtipoprestazione').val('');
+        },
+        error: function (xhr, status, error) {
+          //alert(xhr.responseText)
+
+          if (xhr.status == 401) {
+            $("#div_spinner").hide();
+            function alertDismissed() {
+              window.location = "icaro_login.html";
+            }
+
+            navigator.notification.alert(
+              'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+              alertDismissed,         // callback
+              'Attenzione',            // title
+              'Ok'                  // buttonName
+            );
+          }
+          else
+            alert("ACCESSO NEGATO: "+xhr.responseText)
+        }
+      });
+
+      //$('#idtipoprestazione').val('');
        
     }
   }
@@ -229,8 +227,11 @@
 
   function continua() {
     var idtipoprestazione = $("#idtipoprestazione").val()
+
     var descr_tipoprestazione = $("#idtipoprestazione option:selected").text()
 
+    //alert(descr_tipoprestazione)
+   
     var idgruppo = $("#idgruppo").val()
 
     if (idtipoprestazione != 0) {

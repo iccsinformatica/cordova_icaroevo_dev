@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <!--meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;"-->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport"
+        content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, viewport-fit=cover, height=device-height">
+    <meta name="color-scheme" content="light dark">
+
+    <link rel="stylesheet" href="./css/index.css">
+    <link rel="stylesheet" href="./css/icaro.css">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="./css/fontawesome.css">
+    <link rel="stylesheet" href="./css/fontawesome.min.css">
+
+    <script src="./cordova.js"></script>
+    <script src="./js/index.js"></script>
+    <script src="./js/bootstrap.bundle.min.js"></script>
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/icaro.js"></script>
+
+    <title>Icaro Evo</title>
+</head>
+
+<body>
+    <div class="div_header" id="div_header_small"></div>
+    <div class="page-content" id="div_container" style="text-align: center;">
+        <div class="d-flex flex-row " style="position: relative;" id="back" name="back">
+            <div>
+                <img src="./img/freccia_back.svg" onclick="back()">
+            </div>
+            <div class="center" id="div_numero_element" name="div_numero_element"></div>
+        </div>
+
+        <div style="margin: 0% 5% 2% 5%;">
+            <input name="_input_search" id="_input_search" class="form-control " type="search" value=""
+                placeholder="Cerca" style="border-color: #017BEE; border-radius: 10px;">
+            <i class="glyphicon glyphicon-search"></i>
+        </div>
+        <div>
+            <div class="scroll" id="div_container_sub" name="div_container_sub">
+
+            </div>
+
+        </div>
+    </div>
+</body>
+
+</html>
+<script>
+    document.addEventListener("deviceready", onDeviceReady, false);
+    var idservizio = localStorage.getItem('idservizio');
+
+    let searchParams = new URLSearchParams(window.location.search)
+    var codicefiscale = searchParams.get('_codicefiscale')
+    
+    var date_forcall = get_currentDATAFORCALL();
+    //date_forcall = "2023-03"
+    var oggi = getDATA();
+    //oggi = "2023-03-01"
+
+    function onDeviceReady() {
+
+        getHeader();
+        refresh_token()
+        readSuccess(codicefiscale)
+        
+    }
+  
+    var promises = [];
+    var flag_interventi_zero=true
+    var counter_interventi = 0;
+
+    function readSuccess(codicefiscale) 
+    {
+
+        codicefiscale = codicefiscale.toUpperCase();
+        var realms = localStorage.getItem('realm');
+
+        $('#numero_element').html('');
+        $('#div_container_sub').html('');
+        $('#div_container_sub').append('<div style="margin-top:30%;" id="div_spinner" class="lds-ripple"><div></div><div></div></div>')
+
+        var version_code = localStorage.getItem('version');
+        version_code = version_code.split(".").join("");
+        var idstruttura = localStorage.getItem("idstruttura");
+        var idente = localStorage.getItem('idente');
+        var access_token = localStorage.getItem("access_token");
+
+        var index_soggetto=encodeURIComponent("[0]");
+
+        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/soggettiservice/api/soggetti/ricerca?codiciFiscali'+index_soggetto+'.equals=' + codicefiscale;
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            xhrFields: { withCredentials: true },
+            crossDomain: true,
+            dataType: 'json',
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                xhr.setRequestHeader('idEnte', idente);
+                xhr.setRequestHeader('idStruttura', idstruttura);
+            },
+            success: function (result, textStatus, jqXHR) {
+                flag_soggetto = false
+                
+                if (result != undefined) 
+                {
+                    var content = result.content
+
+                    $.each(content, function (index, element) {
+                        var idsoggetto_tag = element.id
+                        flag_soggetto = true;
+                       
+                        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/erogazioni/ricerca?meseRiferimento=' + date_forcall + '&servizioId.equals=' + idservizio;
+                        
+                        $.ajax({
+                            url: url,
+                            type: 'GET',
+                            xhrFields: { withCredentials: true },
+                            crossDomain: true,
+                            dataType: 'json',
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                                xhr.setRequestHeader('idEnte', idente);
+                                xhr.setRequestHeader('idStruttura', idstruttura);   
+                            },
+                            success: function (result, textStatus, jqXHR) {
+                                
+                                if (result != undefined) 
+                                {
+                                    var content = result.content
+                                    $.each(content, function (index, element) {
+                                        var idIntervento = element.id
+                                      
+                                        var dataInizio = element.dataInizio
+                                        var dataFine = element.dataFine
+                                        var tipoIntervento = element.tipoIntervento
+                                        var codice = element.codice
+                                        var soggetto = element.soggetto
+
+                                        if (oggi >= dataInizio ) 
+                                        {
+                                            dataInizio = get_formatDATE_standard(dataInizio)
+                                            dataFine = get_formatDATE_standard(dataFine)
+                                        
+                                            var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/interventi/ricerca?id.equals=' + idIntervento;
+                                           
+                                            request = $.ajax({
+                                                url: url,
+                                                type: 'GET',
+                                                xhrFields: { withCredentials: true },
+                                                crossDomain: true,
+                                                dataType: 'json',
+                                                beforeSend: function (xhr) {
+                                                    xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
+                                                    xhr.setRequestHeader('idEnte', idente);
+                                                    xhr.setRequestHeader('idStruttura', idstruttura);
+                                                },
+                                                success: function (res, textStatus, jqXHR) 
+                                                {
+                                                    var content = res.content
+                                                    
+                                                    $.each(content, function (index, element) 
+                                                    {
+                                                        var soggetto_component = element.titolare.soggetto
+
+                                                        var id_soggetto = soggetto_component.id
+                                                        var nome = soggetto_component.nome
+                                                        var cognome = soggetto_component.cognome
+                                                        var codicefiscale_intervento = soggetto_component.codiceFiscale
+                                                      
+                                                        if (idsoggetto_tag == id_soggetto) 
+                                                        {
+                                                            $("#div_spinner").hide();
+                                                            $("#div_container_sub").append('<div class="container_div noneseguita" style=" padding:5% 5% 3% 3%; " onclick="openINTERVENTO(\'' + idIntervento + '\',\'' + codice + '\')">\
+                                                                <div class="font"><li><b>'+ cognome + ' ' + nome + '</b></li></div>\
+                                                                <div class="font"><li><b>Servizio: </b>'+ tipoIntervento + '</li></div>\
+                                                                <div class="font"><li><b>Data Inizio: </b>'+ dataInizio + '</li></div>\
+                                                                <div >\
+                                                                    <div class="font"><li><b>Data fine: </b>'+ dataFine + '</li></div>\
+                                                                    <div style="text-align:right;">\
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-return-right" viewBox="0 0 16 16">\
+                                                                            <path fill-rule="evenodd" d="M1.5 1.5A.5.5 0 0 0 1 2v4.8a2.5 2.5 0 0 0 2.5 2.5h9.793l-3.347 3.346a.5.5 0 0 0 .708.708l4.2-4.2a.5.5 0 0 0 0-.708l-4-4a.5.5 0 0 0-.708.708L13.293 8.3H3.5A1.5 1.5 0 0 1 2 6.8V2a.5.5 0 0 0-.5-.5z"/>\
+                                                                        </svg>\
+                                                                    </div>\
+                                                                </div>\
+                                                            </div>');
+                                                            counter_interventi++
+                                                            flag_interventi_zero=false
+                                                        }
+                                                    });
+                                                   
+
+                                                },
+                                                error: function (xhr, status, error) 
+                                                {
+                                                    localStorage.removeItem('access_token');
+                                                    if (xhr.status == 401) 
+                                                    {
+                                                        function alertDismissed() {
+                                                            window.location = "index.html";
+                                                        }
+
+                                                        navigator.notification.alert(
+                                                            'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                                                            alertDismissed,         // callback
+                                                            'Attenzione',            // title
+                                                            'Ok'                  // buttonName
+                                                        );
+                                                    }
+                                                    else
+                                                        alert(xhr.responseText)
+
+                                                    //$("#div_spinner").hide();
+
+                                                }
+
+                                            });       
+
+                                            promises.push(request);                                        
+                                        }  
+                                    });                                                             
+                                }
+
+                                $.when.apply(null, promises).done(function () 
+                                {
+                                    if (counter_interventi==0) 
+                                    {
+                                        $("#div_spinner").hide();
+                                        $("#div_container_sub").append('<div class="container_div noneseguita d-flex flex-row">\
+                                            <div class="container" style="padding-top: 5%;">\
+                                                <div>\
+                                                    <h6 class="font" style="font-size:15px;">Non sono presenti interventi attivi ad oggi per l\'utente selezionato</h6>\
+                                                </div>\
+                                            </div>\
+                                        </div>');
+                                    }
+
+                                    $("#div_numero_element").append(' <h6 id="numero_element" name="numero_element">' + counter_interventi + ' attività</h6>');
+                                    
+                                        
+                                });
+
+                                //$("#div_spinner").hide();
+
+                            },
+                            error: function (xhr, status, error) {
+
+                                localStorage.removeItem('access_token');
+                                if (xhr.status == 401) {
+                                    function alertDismissed() {
+                                        
+                                        window.location = "index.html";
+                                    }
+
+                                    navigator.notification.alert(
+                                        'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                                        alertDismissed,         // callback
+                                        'Attenzione',            // title
+                                        'Ok'                  // buttonName
+                                    );
+                                }
+                                else
+                                    alert(xhr.responseText)
+
+                                //$("#div_spinner").hide();
+                            }
+                        });
+                    });
+                }
+
+                if (!flag_soggetto) 
+                {
+
+                    $("#div_container_sub").append('<div class="container_div noneseguita d-flex flex-row">\
+                        <div class="container" style="padding-top: 5%;">\
+                            <div>\
+                                <h6 class="font" style="font-size:15px;">Non sono presenti interventi associati alla tessera scansionata</h6>\
+                            </div>\
+                        </div>\
+                    </div>');
+                }
+            },
+            error: function (xhr, status, error) {
+                $("#div_spinner").hide();
+                if (xhr.status == 401) {
+                   
+                    function alertDismissed() {
+                        localStorage.removeItem('access_token');
+                        window.location = "index.html";
+                    }
+
+                    navigator.notification.alert(
+                        'Sessione scaduta, sarai reindirizzato alla pagina di login',  // message
+                        alertDismissed,         // callback
+                        'Attenzione',            // title
+                        'Ok'                  // buttonName
+                    );
+                }
+                else
+                    alert(xhr.responseText)
+            }
+
+        });
+
+        
+    }
+   
+
+    $("#_input_search").on("keyup", function () {
+        var value = $(this).val().toLowerCase();
+        $(".container_div").filter(function () {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+
+    function openINTERVENTO(idintervento, codice) {
+        window.location = "icaro_ordine_servizio_dettaglio.html?_idintervento=" + idintervento + "&codice=" + codice;
+    }
+
+    /*
+        - Al primo accesso scaricare tutti gli ordini di servizio e salvarseli in locale
+        - Diario -> ogni pai ha un diario
+        - leggere la tecnologia da utilizzare, dato che deve essere presente nella risposta della request al pai
+    */
+    //navigator.geolocation.getCurrentPosition(onSuccess, onError);
+
+    function back() {
+        window.location = "icaro_ordini_servizio_scelta.html";
+    }
+
+</script>

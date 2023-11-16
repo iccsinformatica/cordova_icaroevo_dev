@@ -16,10 +16,6 @@
     "cordova-plugin-file": {
       "PACKAGE_NAME": "com.iccs.app.icaro.dev"
     },
-    "cordova-plugin-geolocation": {
-      "GPS_REQUIRED": "true",
-      "PACKAGE_NAME": "com.iccs.app.icaro.dev"
-    },
     "phonegap-nfc": {
       "PACKAGE_NAME": "com.iccs.app.icaro.dev"
     },
@@ -28,6 +24,22 @@
     },
     "cordova-plugin-advanced-http": {
       "ANDROIDBLACKLISTSECURESOCKETPROTOCOLS": "SSLv3,TLSv1",
+      "PACKAGE_NAME": "com.iccs.app.icaro.dev"
+    },
+    "phonegap-plugin-barcodescanner": {
+      "PACKAGE_NAME": "com.iccs.app.icaro.dev"
+    },
+    "cordova.plugins.diagnostic": {
+      "PACKAGE_NAME": "com.iccs.app.icaro.dev"
+    },
+    "cordova-plugin-request-location-accuracy": {
+      "PACKAGE_NAME": "com.iccs.app.icaro.dev"
+    },
+    "cordova-plugin-androidx-adapter": {
+      "PACKAGE_NAME": "com.iccs.app.icaro.dev"
+    },
+    "cordova-plugin-geolocation": {
+      "GPS_REQUIRED": "true",
       "PACKAGE_NAME": "com.iccs.app.icaro.dev"
     }
   },

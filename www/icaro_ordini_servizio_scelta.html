@@ -11,9 +11,9 @@
         content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, viewport-fit=cover, height=device-height">
     <meta name="color-scheme" content="light dark">
 
-    <link rel="stylesheet" href="/css/icaro.css">
-    <link rel="stylesheet" href="/css/index.css">
-    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/icaro.css">
+    <link rel="stylesheet" href="./css/index.css">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
 
     <script src="./cordova.js"></script>
     <script src="./js/index.js"></script>
@@ -59,6 +59,17 @@
             </span>
             <div style="margin-left: 10%;"><b>Visualizza solo gli ordini di servizio relativi al beneficiario tramite NFC</b></div>
         </div>
+
+        <div class="container_div_home d-flex flex-row " style="padding:5%;" onclick="openINTERVENTICAMERA()">
+            <span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-table"
+                    viewBox="0 0 16 16">
+                    <path
+                        d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z" />
+                </svg>
+            </span>
+            <div style="margin-left: 10%;"><b>Visualizza solo gli ordini di servizio relativi al beneficiario tramite Fotocamera</b></div>
+        </div>
     </div>
 </body>
 
@@ -73,10 +84,10 @@
     document.addEventListener("deviceready", onDeviceReady, false);
     //$("#container").append('<br><br><br><br><br><br><div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-top: 50%;"><span class="visually-hidden">Caricamento in corso...</span></div>');
     $('#container').append('<div style="margin-top:50%;" id="div_spinner" class="lds-ripple"><div></div><div></div></div>')
-
+    getHeader();
     function onDeviceReady() {
-        getHeader();
-        refresh_token()
+       
+        //refresh_token()
       
         $("#div_spinner").hide();
     }
@@ -92,6 +103,48 @@
 
     function back() {
         window.location = "icaro_home.html";
+    }
+
+    function openINTERVENTICAMERA()
+    {
+        cordova.plugins.barcodeScanner.scan(
+            function (result) {
+                if(result.text!='')
+                    window.location = "icaro_ordini_servizio_elenco_camera.html?_codicefiscale="+result.text;
+                else
+                {
+                    function alertDismissed() {
+                    }
+
+                    navigator.notification.alert(
+                        'Anomalia lettura tessera',  // message
+                        alertDismissed,         // callback
+                        'Attenzione',            // title
+                        'Ok'                  // buttonName
+                    );
+                }
+            },
+            function (error) {
+                alert("Scanning failed: " + error);
+            },
+            {
+                preferFrontCamera : false, // iOS and Android
+                showFlipCameraButton : true, // iOS and Android
+                showTorchButton : true, // iOS and Android
+                torchOn: false, // Android, launch with the torch switched on (if available)
+                saveHistory: true, // Android, save scan history (default false)
+                prompt : "Inquadra il codice a barre della tessera sanitaria", // Android
+                resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+                formats : "QR_CODE,PDF_417,Code39", // default: all but PDF_417 and RSS_EXPANDED
+                //orientation : "landscape", // Android only (portrait|landscape), default unset so it rotates with the device
+                disableAnimations : true, // iOS
+                disableSuccessBeep: false // iOS and Android
+            }
+        );
+
+       
+
+        
     }
 
 </script>
