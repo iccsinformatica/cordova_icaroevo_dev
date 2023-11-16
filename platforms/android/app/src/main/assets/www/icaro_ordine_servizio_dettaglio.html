@@ -108,8 +108,9 @@
     //$('#div_container').append('<div class="loading" id="div_spinner"><div class="loader"></div></div>')
     //$("#div_container").append('<div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-left: 50%; margin-top: 50%;"><span class="visually-hidden">Caricamento in corso...</span></div>');
  
-        
-        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/gruppi-prestazione/ricerca/' + idIntervento;
+        var base_url = localStorage.getItem('base_url');
+
+        var url = 'https://' + base_url + '/services/interventiservice/api/gruppi-prestazione/ricerca/' + idIntervento;
       
         $.ajax({
           url: url,
@@ -168,8 +169,9 @@
 
       var version_code = localStorage.getItem('version');
       version_code = version_code.split(".").join("");
-      
-      var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/gruppi-prestazioni-tipi/ricerca/' + idgruppo;
+      var base_url = localStorage.getItem('base_url');
+
+      var url = 'https://' + base_url + '/services/interventiservice/api/gruppi-prestazioni-tipi/ricerca/' + idgruppo;
           
       $.ajax({
         url: url,

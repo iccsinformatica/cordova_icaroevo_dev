@@ -180,7 +180,7 @@
         var idente = localStorage.getItem('idente');
         var access_token = localStorage.getItem("access_token");
        
-        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/soggettiservice/api/soggetti/ricerca?tagNfc.contains=' + tagId;
+        var url = 'https://' + realms + '.icaro-dev.maggioli.cloud/services/soggettiservice/api/soggetti/ricerca?tagNfc.contains=' + tagId;
         
         
         $.ajax({
@@ -204,7 +204,7 @@
                         var idsoggetto_tag = element.id
                         flag_soggetto = true;
                        
-                        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/erogazioni/ricerca?meseRiferimento=' + date_forcall + '&servizioId.equals=' + idservizio;
+                        var url = 'https://' + realms + '.icaro-dev.maggioli.cloud/services/interventiservice/api/erogazioni/ricerca?meseRiferimento=' + date_forcall + '&servizioId.equals=' + idservizio;
                         
                         $.ajax({
                             url: url,
@@ -236,7 +236,7 @@
                                             dataInizio = get_formatDATE_standard(dataInizio)
                                             dataFine = get_formatDATE_standard(dataFine)
                                         
-                                            var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/interventi/ricerca?id.equals=' + idIntervento;
+                                            var url = 'https://' + realms + '.icaro-dev.maggioli.cloud/services/interventiservice/api/interventi/ricerca?id.equals=' + idIntervento;
                                            
                                             var request = $.ajax({
                                                 url: url,

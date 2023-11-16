@@ -93,8 +93,9 @@
         var access_token = localStorage.getItem("access_token");
 
         var index_soggetto=encodeURIComponent("[0]");
+        var base_url = localStorage.getItem('base_url');
 
-        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/soggettiservice/api/soggetti/ricerca?codiciFiscali'+index_soggetto+'.equals=' + codicefiscale;
+        var url = 'https://' + base_url + '/services/soggettiservice/api/soggetti/ricerca?codiciFiscali'+index_soggetto+'.equals=' + codicefiscale;
 
         $.ajax({
             url: url,
@@ -117,8 +118,8 @@
                     $.each(content, function (index, element) {
                         var idsoggetto_tag = element.id
                         flag_soggetto = true;
-                       
-                        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/erogazioni/ricerca?meseRiferimento=' + date_forcall + '&servizioId.equals=' + idservizio;
+
+                        var url = 'https://' + base_url + '/services/interventiservice/api/erogazioni/ricerca?meseRiferimento=' + date_forcall + '&servizioId.equals=' + idservizio;
                         
                         $.ajax({
                             url: url,
@@ -149,8 +150,8 @@
                                         {
                                             dataInizio = get_formatDATE_standard(dataInizio)
                                             dataFine = get_formatDATE_standard(dataFine)
-                                        
-                                            var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/interventi/ricerca?id.equals=' + idIntervento;
+
+                                            var url = 'https://' + base_url + '/services/interventiservice/api/interventi/ricerca?id.equals=' + idIntervento;
                                            
                                             request = $.ajax({
                                                 url: url,

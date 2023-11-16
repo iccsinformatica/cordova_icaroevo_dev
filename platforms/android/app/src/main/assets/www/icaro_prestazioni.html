@@ -80,10 +80,11 @@
   getHeader();
   function onDeviceReady() {
   
+    var base_url = localStorage.getItem('base_url');
 
     $("#div_container").append('<div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-left: 50%; margin-top: 50%;"><span class="visually-hidden">Caricamento in corso...</span></div>');
 
-        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni/ricerca?id.equals=' + idPrestazione;
+        var url = 'https://' + base_url + '/services/interventiservice/api/prestazioni/ricerca?id.equals=' + idPrestazione;
        
         $.ajax({
           url: url,
@@ -143,7 +144,7 @@
               var first = element.first;
               var last = element.last;
 
-              var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/interventi/ricerca?id.equals=' + idIntervento;
+              var url = 'https://' + base_url + '/services/interventiservice/api/interventi/ricerca?id.equals=' + idIntervento;
              
               $.ajax({
                 url: url,
@@ -175,7 +176,7 @@
                     var comune = indirizzoResidenza.comune
                     var provincia = indirizzoResidenza.provincia
                    
-                    var url = 'https://' + realms + '.icaro.maggioli.cloud/services/soggettiservice/api/soggetti/ricerca?id.equals=' + id_soggetto;
+                    var url = 'https://' + base_url + '/services/soggettiservice/api/soggetti/ricerca?id.equals=' + id_soggetto;
 
                     $.ajax({
                       url: url,
@@ -413,6 +414,9 @@
   }
 
   function readSuccess(nfcTag) {
+    var base_url = localStorage.getItem('base_url');
+
+
     var res = JSON.stringify(nfcTag)
     var ora = getTIME()
     //!!!!controllare se il soggetto corrisponde al soggetto del tag nfc!!!
@@ -439,7 +443,7 @@
     var version_code = localStorage.getItem('version');
     version_code = version_code.split(".").join("");
     
-      var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni';
+      var url = 'https://' + base_url + '/services/interventiservice/api/prestazioni';
       
       $.ajax({
         url: url,

@@ -433,8 +433,8 @@ function refresh_token() {
 
     //if (scadenza_token <= timeObject)
     //{
-        //var client_id="simeal" //dev
-        var client_id="icaroevo" //PROD
+        var client_id="simeal" //dev
+        //var client_id="icaroevo" //PROD
        
         var details = {
             'grant_type': 'refresh_token',
@@ -453,7 +453,7 @@ function refresh_token() {
         }
         formBody = formBody.join("&");
 
-        var url = "https://login.maggiolicloud.it/auth/realms/" + realms + "/protocol/openid-connect/token/";
+        var url = "https://login-dev.maggioli.cloud/realms/" + realms + "/protocol/openid-connect/token/";
         
         fetch(url, {
             method: 'POST',

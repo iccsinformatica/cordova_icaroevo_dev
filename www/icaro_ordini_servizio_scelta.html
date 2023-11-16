@@ -80,15 +80,15 @@
     var idstruttura = localStorage.getItem("idstruttura");
     var idente = localStorage.getItem('idente');
     var access_token = localStorage.getItem("access_token");
-    //alert(access_token)
+
+       
     document.addEventListener("deviceready", onDeviceReady, false);
     //$("#container").append('<br><br><br><br><br><br><div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-top: 50%;"><span class="visually-hidden">Caricamento in corso...</span></div>');
     $('#container').append('<div style="margin-top:50%;" id="div_spinner" class="lds-ripple"><div></div><div></div></div>')
     getHeader();
     function onDeviceReady() {
-       
         //refresh_token()
-      
+       
         $("#div_spinner").hide();
     }
 

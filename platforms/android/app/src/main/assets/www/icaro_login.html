@@ -33,9 +33,10 @@
 
         <div id="div_login" style="text-align: center; margin-top: 20%;">
             <div class="input-style input-style-1 input-required" id="logo">
+                <h5>IcaroCoop-DEV</h5>
                 <img style="width: 25%;" src="./img/logo.png" alt="">
             </div>
-
+            
             <div style="padding-left: 10%; padding-right: 10%; margin-top: 10%;" id="select_realms"
                 name="select_realms">
                 <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" id="realms"
@@ -47,10 +48,10 @@
             <div style="padding-left: 10%; padding-right: 10%; margin-top: 10%;" id="div_select_idente"
             name="div_select_idente">
 
-            <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" id="idente"
-                name="idente" onchange="getSTRUTTURE(this.value)">
-            </select>
-        </div>
+                <select class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" id="idente"
+                    name="idente" onchange="getSTRUTTURE(this.value)">
+                </select>
+            </div>
             <div style="padding-left: 10%; padding-right: 10%; margin-top: 10%;" id="div_select_struttura"
                 name="div_select_struttura">
 
@@ -121,13 +122,18 @@
 <script type="text/javascript">
     document.addEventListener("deviceready", onDeviceReady, false);
 
-    $("#div_login").hide();
+    //$("#div_login").hide();
+    $("#div_select_struttura").hide();
+    $("#div_select_idente").hide();
+    $("#div_select_servizi").hide();
+    
     //$('#container').append('<div class="loading" id="div_spinner"><div class="loader"></div></div>')
-    $('#container').append('<div style="margin-top:50%;" id="div_spinner" class="lds-ripple"><div></div><div></div></div>')
+    //$('#container').append('<div style="margin-top:50%;" id="div_spinner" class="lds-ripple"><div></div><div></div></div>')
 
     //$("#container").append('<br><br><br><br><br><br><div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-top: 50%;"><span class="visually-hidden">Caricamento in corso...</span></div>');
     function onDeviceReady() {
 
+       
         localStorage.removeItem("idservizio");
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
@@ -164,6 +170,7 @@
         $("#div_spinner").hide();
         $('#idstruttura').html('');
         $('#idservizio').html('');
+        var base_url = localStorage.getItem('base_url');
 
         //$('#container').append('<div class="loading" id="div_spinner_login"><div class="loader"></div></div>')
         $('#container').append('<div style="margin-top:10%;" id="div_spinner_login" class="lds-ripple"><div></div><div></div></div>')
@@ -236,11 +243,13 @@
         };
        
         var formBody = [];
-        for (var property in details) {
+        for (var property in details) 
+        {
             var encodedKey = encodeURIComponent(property);
             var encodedValue = encodeURIComponent(details[property]);
             formBody.push(encodedKey + "=" + encodedValue);
         }
+
         formBody = formBody.join("&");
 
         var version_code = localStorage.getItem('version');
@@ -249,16 +258,15 @@
         localStorage.setItem('username', username);
         localStorage.setItem('password', password);
         localStorage.setItem('realm', realm);
-
-        fetch("https://login-dev.maggiolicloud.it/auth/realms/" + realm + "/protocol/openid-connect/token/", {
+        fetch("https://login-dev.maggioli.cloud/realms/" + realm + "/protocol/openid-connect/token/", {
             method: 'POST',
-            mode: "no-cors",
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
             },
             body: formBody
         }).then((response) => response.json())
-            .then((responseData) => {
+            .then((responseData) => 
+            {
                 var access_token = responseData['access_token'];
                 var refresh_token = responseData['refresh_token'];
                 var expires_in = responseData['expires_in'];
@@ -278,12 +286,13 @@
                 //var refresh_token = responseData['refresh_token'];
                 //localStorage.setItem('refresh_token', refresh_token);
                 //console.log(access_token)
-                if (access_token != '' && access_token != null && access_token != undefined) {
+                if (access_token != '' && access_token != null && access_token != undefined) 
+                {
                     $("#div_accesso_credenziali").hide();
                     $("#select_realms").hide();
                     $("#div_spinner").hide();
-
-                    var url = 'https://' + realm + '.icaro.maggioli.cloud/services/autorizzazioniservice/api/account-info';
+                    
+                    var url = 'https://'+base_url+'/services/autorizzazioniservice/api/account-info';
                         
                     //alert(url)
                     //return false;
@@ -296,7 +305,6 @@
                             xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
                         },
                         success: function (result, textStatus, jqXHR) {
-
 
                             var id = result["id"]
                             var nome = result["nome"]
@@ -316,8 +324,9 @@
                                 var idente = ente.id
                                 var label = ente.label
                                 var strutture = ente.strutture
-                                //alert(JSON.stringify(strutture))
+                               
                                 //localStorage.setItem(idente, strutture);
+
                                 localStorage.setItem(idente, JSON.stringify(strutture));
 
                                 if(counter == 1)
@@ -356,7 +365,8 @@
                     $("#div_select_idente").show();
                         
                 }
-                else {
+                else 
+                {
                     $("#div_spinner_login").hide();
                     function alertDismissed() {
                         //location.reload();
@@ -372,10 +382,12 @@
                     );
 
                 }
+
             }).catch(err => {
+                console.log("errore login ")
+
                 console.log(err)
             });
-        
 
     }
 
@@ -410,13 +422,14 @@
             localStorage.setItem("idente", idente);
 
             var access_token = localStorage.getItem("access_token");
+           
             var version_code = localStorage.getItem('version');
             version_code = version_code.split(".").join("");
 
-            
             var realm = localStorage.getItem('realm');
-
-            var url = 'https://' + realm + '.icaro.maggioli.cloud/services/interventiservice/api/tipi-intervento-servizi/ricerca/servizi/' + idstruttura
+            var base_url = localStorage.getItem('base_url');
+            
+            var url = 'https://' + base_url + '/services/interventiservice/api/tipi-intervento-servizi/ricerca/servizi/' + idstruttura
             
             $.ajax({
                 url: url,
@@ -485,8 +498,9 @@
             version_code = version_code.split(".").join("");
             
             var realm = localStorage.getItem('realm');
+            var base_url = localStorage.getItem('base_url');
 
-            var url = 'https://' + realm + '.icaro.maggioli.cloud/services/autorizzazioniservice/api/authorize';
+            var url = 'https://' + base_url + '/services/autorizzazioniservice/api/authorize';
             
             var details = {
                 'idEnte': idente,
@@ -517,7 +531,7 @@
                     var aPERMESSI = data.permessi
 
                     localStorage.setItem("descrizione_struttura", aSTRUTTURA['label']);
-                    var url = 'https://' + realm + '.icaro.maggioli.cloud/services/interventiservice/api/tipi-intervento-servizi/ricerca/servizi/' + idstruttura
+                    var url = 'https://' + base_url + '/services/interventiservice/api/tipi-intervento-servizi/ricerca/servizi/' + idstruttura
                     
                     $.ajax({
                         url: url,
@@ -573,8 +587,10 @@
     }
 
     function continua() {
+
         var idstruttura = $("#idstruttura").val()
         var idservizio = $("#idservizio").val()
+      
         if (idservizio != 0 && idservizio != null) {
             localStorage.setItem("idservizio", idservizio);
             localStorage.setItem("idstruttura", idstruttura);

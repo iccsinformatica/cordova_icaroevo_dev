@@ -422,6 +422,7 @@ cordova.define('cordova/plugin_list', function(require, exports, module) {
     "cordova-plugin-request-location-accuracy": "2.3.0",
     "cordova.plugins.diagnostic": "7.1.4",
     "phonegap-nfc": "1.2.0",
-    "phonegap-plugin-barcodescanner": "8.1.0"
+    "phonegap-plugin-barcodescanner": "8.1.0",
+    "cordova-plugin-whitelist": "1.3.4"
   };
 });

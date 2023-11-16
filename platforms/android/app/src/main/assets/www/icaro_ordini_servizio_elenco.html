@@ -58,16 +58,16 @@
 </html>
 <script>
     document.addEventListener("deviceready", onDeviceReady, false);
-    var access_token = localStorage.getItem("access_token");
-    var idstruttura = localStorage.getItem("idstruttura");
-    var idente = localStorage.getItem('idente');
-    var realms = localStorage.getItem('realm');
-    var idservizio = localStorage.getItem('idservizio');
-    var version_code = localStorage.getItem('version');
-    version_code = version_code.split(".").join("");
+
     getHeader();
     function onDeviceReady() {
-
+        var access_token = localStorage.getItem("access_token");
+        var idstruttura = localStorage.getItem("idstruttura");
+        var idente = localStorage.getItem('idente');
+        var realms = localStorage.getItem('realm');
+        var idservizio = localStorage.getItem('idservizio');
+        var version_code = localStorage.getItem('version');
+        version_code = version_code.split(".").join("");
        
         //refresh_token()
         $('#div_container_sub').append('<div style="margin-top:50%;" id="div_spinner" class="lds-ripple"><div></div><div></div></div>')
@@ -83,8 +83,8 @@
 
         var date_forcall = get_currentDATAFORCALL();
         //date_forcall = "2023-03"
-       
-        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/erogazioni/ricerca?meseRiferimento=' + date_forcall + '&servizioId.equals=' + idservizio+'&page=0&size=200';
+        var base_url = localStorage.getItem('base_url');
+        var url = 'https://' + base_url + '/services/interventiservice/api/erogazioni/ricerca?meseRiferimento=' + date_forcall + '&servizioId.equals=' + idservizio+'&page=0&size=200';
         
         $.ajax({
             url: url,
@@ -180,7 +180,7 @@
                     );
                 }
                 else
-                    alert("ACCESSO NEGATO: " + xhr.responseText)
+                    alert("Error: " + xhr.responseText)
 
                 $("#div_spinner").hide();
             }

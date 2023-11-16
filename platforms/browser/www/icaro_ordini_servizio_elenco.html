@@ -84,7 +84,7 @@
         var date_forcall = get_currentDATAFORCALL();
         //date_forcall = "2023-03"
        
-        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/erogazioni/ricerca?meseRiferimento=' + date_forcall + '&servizioId.equals=' + idservizio+'&page=0&size=200';
+        var url = 'https://' + realms + '.icaro-dev.maggioli.cloud/services/interventiservice/api/erogazioni/ricerca?meseRiferimento=' + date_forcall + '&servizioId.equals=' + idservizio+'&page=0&size=200';
         
         $.ajax({
             url: url,

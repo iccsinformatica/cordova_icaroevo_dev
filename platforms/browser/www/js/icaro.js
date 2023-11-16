@@ -45,8 +45,10 @@ function getHeader() {
     //var nominativo=getLocal("nominativo");
     var device_model = getLocal("device_model");
     var version_code = localStorage.getItem('version');
-    if(version_code!='')
+    if(version_code!='' && version_code!=null)
         version_code="V. "+version_code
+    else
+        version_code='';
 
     var string_utente = nominativo + " (" + idutente + ")";
 
@@ -103,7 +105,17 @@ function logout() {
     function onConfirm(button) {
 
         if (button == 1)
-            window.location = ("icaro_login.html");
+        {
+            localStorage.removeItem("idservizio");
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('idstruttura');
+            localStorage.removeItem('idente');
+            localStorage.removeItem('client_secret');
+            localStorage.removeItem('realm');
+            window.location = ("index.html");
+        }
+        
     }
 
     navigator.notification.confirm(

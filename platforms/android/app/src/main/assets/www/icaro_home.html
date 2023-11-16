@@ -93,16 +93,13 @@
     //document.addEventListener("deviceready", onDeviceReady, false);
     //$("#container").append('<br><br><br><br><br><br><div id="div_spinner" class="spinner-grow text-primary" role="status" style=" margin-top: 50%;"><span class="visually-hidden">Caricamento in corso...</span></div>');
     $('#container').append('<div style="margin-top:50%;" id="div_spinner" class="lds-ripple"><div></div><div></div></div>')
-
     
     getHeader();
     refresh_token()
     $("#div_spinner").hide();
    
-
-
     function openINTERVENTI() {
-       
+
         window.location = "icaro_ordini_servizio_scelta.html";
     }
 
@@ -117,31 +114,10 @@
     function scaricaORDINISERVIZIO() {
         alert("Scaricare tutti gli ordini a carico di quell'operatore");
     }
-
-    // onSuccess Callback
-    //   This method accepts a `Position` object, which contains
-    //   the current GPS coordinates
-    //
-    /*
-    var onSuccess = function (position) {
-        alert('Latitude: ' + position.coords.latitude + '\n' +
-            'Longitude: ' + position.coords.longitude + '\n' +
-            'Altitude: ' + position.coords.altitude + '\n' +
-            'Accuracy: ' + position.coords.accuracy + '\n' +
-            'Altitude Accuracy: ' + position.coords.altitudeAccuracy + '\n' +
-            'Heading: ' + position.coords.heading + '\n' +
-            'Speed: ' + position.coords.speed + '\n' +
-            'Timestamp: ' + position.timestamp + '\n');
-    };
-    */
-    // onError Callback receives a PositionError object
-    //
+    
     function onError(error) {
         alert('code: ' + error.code + '\n' +
             'message: ' + error.message + '\n');
     }
-
-    //navigator.geolocation.getCurrentPosition(onSuccess, onError);
-
 
 </script>

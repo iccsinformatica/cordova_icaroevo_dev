@@ -155,7 +155,7 @@
         version_code = version_code.split(".").join("");
 
         
-        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni-operatori/ricerca?cognome.equals=' + username;
+        var url = 'https://' + realms + '.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni-operatori/ricerca?cognome.equals=' + username;
         
 
         //var url = "https://"+urlgateway+"/services/interventiservice/api/prestazioni-operatori/ricerca?cognome.equals=" + username
@@ -183,7 +183,7 @@
 
                     //alert(aPRESTAZIONI)
                     
-                    var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/erogazioni/ricerca?meseRiferimento=' + date_forcall + '&servizioId.equals=' + idservizio;
+                    var url = 'https://' + realms + '.icaro-dev.maggioli.cloud/services/interventiservice/api/erogazioni/ricerca?meseRiferimento=' + date_forcall + '&servizioId.equals=' + idservizio;
                     
                     $.ajax({
                         url: url,

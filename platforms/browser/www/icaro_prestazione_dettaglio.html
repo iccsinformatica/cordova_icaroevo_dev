@@ -94,7 +94,7 @@
         var aINTERVENTI = [];
         //Con la prima chiamata prendo l'id del soggetto
 
-        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/interventi/ricerca?id.equals=' + idIntervento;
+        var url = 'https://' + realms + '.icaro-dev.maggioli.cloud/services/interventiservice/api/interventi/ricerca?id.equals=' + idIntervento;
 
         $.ajax({
             url: url,
@@ -131,7 +131,7 @@
                         var provincia = indirizzoResidenza.provincia
                         //Prendo tutti i campi necessari del soggetto
 
-                        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/soggettiservice/api/soggetti/ricerca?id.equals=' + id_soggetto;
+                        var url = 'https://' + realms + '.icaro-dev.maggioli.cloud/services/soggettiservice/api/soggetti/ricerca?id.equals=' + id_soggetto;
 
                         $.ajax({
                             url: url,
@@ -184,7 +184,7 @@
                                     tagNfc = tagNfc.toUpperCase();
                                     //Prendo tutte le prestazioni effettuate per quell'intervento in quel range di date
 
-                                    var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/erogazioni/ricerca?meseRiferimento=' + date_forcall + '&servizioId.equals=' + idservizio + '&progressivoAnnuo.contains=' + codice_intervento;
+                                    var url = 'https://' + realms + '.icaro-dev.maggioli.cloud/services/interventiservice/api/erogazioni/ricerca?meseRiferimento=' + date_forcall + '&servizioId.equals=' + idservizio + '&progressivoAnnuo.contains=' + codice_intervento;
 
                                     $.ajax({
                                         url: url,
@@ -257,7 +257,7 @@
                                                                     
                                                                     if ($.inArray(idPrestazione, aIDPRESTAZIONI) !== -1) {
                                                                         if ((oraInizio != null && oraFine == null) || (oraInizio != null && oraFine != null)) {
-                                                                            var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni/ricerca?id.equals=' + idPrestazione;
+                                                                            var url = 'https://' + realms + '.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni/ricerca?id.equals=' + idPrestazione;
                                                                             $.ajax({
                                                                                 url: url,
                                                                                 type: 'GET',
@@ -767,7 +767,7 @@
                 //alert("POST: " + aBODY)
                 //return false;
 
-                var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni';
+                var url = 'https://' + realms + '.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni';
 
                 $.ajax({
                     url: url,
@@ -796,7 +796,7 @@
 
                         //alert("Body : " + aBODYrequest)
 
-                        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni-operatori';
+                        var url = 'https://' + realms + '.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni-operatori';
 
                         $.ajax({
                             url: url,
@@ -907,7 +907,7 @@
                 //alert("PUT: " + aBODY)
                 //return false;
 
-                var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni';
+                var url = 'https://' + realms + '.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni';
 
                 $.ajax({
                     url: url,
@@ -1007,7 +1007,7 @@
             function elimina(button) {
                 if (button == 1) {
 
-                    var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni/' + idPrestazione;
+                    var url = 'https://' + realms + '.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni/' + idPrestazione;
 
                     $.ajax({
                         url: url,
@@ -1366,7 +1366,7 @@
                 //alert("POST: " + aBODY)
                 //return false;
 
-                var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni';
+                var url = 'https://' + realms + '.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni';
 
                 $.ajax({
                     url: url,
@@ -1395,7 +1395,7 @@
 
                         //alert("Body : " + aBODYrequest)
 
-                        var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni-operatori';
+                        var url = 'https://' + realms + '.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni-operatori';
 
                         $.ajax({
                             url: url,
@@ -1505,7 +1505,7 @@
                 //alert("PUT: " + aBODY)
                 //return false;
 
-                var url = 'https://' + realms + '.icaro.maggioli.cloud/services/interventiservice/api/prestazioni';
+                var url = 'https://' + realms + '.icaro-dev.maggioli.cloud/services/interventiservice/api/prestazioni';
 
                 $.ajax({
                     url: url,
