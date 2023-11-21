@@ -166,6 +166,7 @@
                 xhr.setRequestHeader('idStruttura', idstruttura);
             },
             success: function (res, textStatus, jqXHR) {
+                console.log(res)
                 if (res != undefined) {
 
                     var content = res.content
@@ -192,6 +193,7 @@
                         },
                         success: function (res, textStatus, jqXHR) {
                             var content = res.content
+                            console.log(content)
 
                             $.each(content, function (index, element) {
                                 var idintervento_result = element.id
@@ -253,7 +255,7 @@
                                                     success: function (res, textStatus, jqXHR) {
                                                         var contentPrestazione = res.content
                                                         var idgruppo = '';
-
+                                                       
                                                         $.each(contentPrestazione, function (index, element) {
                                                             var tipiPrestazione = element.tipiPrestazione
 
@@ -307,7 +309,7 @@
 
                                                             function alertDismissed() {
                                                                 localStorage.removeItem('access_token');
-                                                                window.location = "icaro_login.html";
+                                                                window.location = "index.html";
                                                             }
 
                                                             navigator.notification.alert(
@@ -353,7 +355,7 @@
 
                                 function alertDismissed() {
                                     localStorage.removeItem('access_token');
-                                    window.location = "icaro_login.html";
+                                    window.location = "index.html";
                                 }
 
                                 navigator.notification.alert(
@@ -378,7 +380,7 @@
 
                     function alertDismissed() {
                         localStorage.removeItem('access_token');
-                        window.location = "icaro_login.html";
+                        window.location = "index.html";
                     }
 
                     navigator.notification.alert(

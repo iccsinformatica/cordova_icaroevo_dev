@@ -233,12 +233,13 @@
                                                             var data_prestazione = index;
                                                             //Prendo tutte le prestazioni fatte quel giorno
 
-                                                            if (oggi == data_prestazione) {
+                                                            if (oggi == data_prestazione) 
+                                                            {
 
                                                                 var idaccesso = erogazione.idAccesso
                                                                 var statoValidazione = erogazione.statoValidazione
                                                                 var aPRESTAZIONI = erogazione.prestazioni
-
+                                                                
                                                                 $.each(aPRESTAZIONI, function (index, prestazione) {
                                                                     var idPrestazione = prestazione.idPrestazione
                                                                     var labelGruppoPrestazioni = prestazione.labelGruppoPrestazioni
@@ -250,14 +251,13 @@
                                                                     var erogata = prestazione.erogata
                                                                     var fatturabile = prestazione.fatturabile
                                                                     var durata = prestazione.durata
-                                                                    var longitudine_inizio = prestazione.longitudine_inizio
-                                                                    var latitudine_inizio = prestazione.latitudine_inizio
-                                                                    var longitudine_fine = prestazione.longitudine_fine
-                                                                    var latitudine_fine = prestazione.latitudine_fine
-
                                                                     
-                                                                    if ($.inArray(idPrestazione, aIDPRESTAZIONI) !== -1) {
-                                                                        if ((oraInizio != null && oraFine == null) || (oraInizio != null && oraFine != null)) {
+                                                                    
+                                                                    
+                                                                    if ($.inArray(idPrestazione, aIDPRESTAZIONI) !== -1) 
+                                                                    {
+                                                                        if ((oraInizio != null && oraFine == null) || (oraInizio != null && oraFine != null)) 
+                                                                        {
                                                                             var url = 'https://' + base_url + '/services/interventiservice/api/prestazioni/ricerca?id.equals=' + idPrestazione;
                                                                             $.ajax({
                                                                                 url: url,
@@ -273,13 +273,24 @@
                                                                                 success: function (res, textStatus, jqXHR) {
                                                                                     var contentPrestazione = res.content
                                                                                     //alert(JSON.stringify(contentPrestazione))
-
+                                                                                    //return false;
                                                                                     //controllo se la prestazione che ho selezionato ha gli stessi tipi prestazione
                                                                                     var flag_continua = true;
+                                                                                    var longitudine_inizio='';
+                                                                                    var latitudine_inizio='';
+                                                                                    var longitudine_fine='';
+                                                                                    var latitudine_fine='';
+
+
                                                                                     $.each(contentPrestazione, function (index, element) {
 
                                                                                         var tipiPrestazione = element.tipiPrestazione
-
+                                                                                        
+                                                                                        longitudine_inizio = element.lonInizio
+                                                                                        latitudine_inizio = element.latInizio
+                                                                                        longitudine_fine = element.lonFine
+                                                                                        latitudine_fine = element.latFine
+                                                                                        
                                                                                         $.each(tipiPrestazione, function (index, tipoprestazione) {
                                                                                             if ($.inArray(tipoprestazione.id, aIDTIPIPRESTAZIONI) == -1)
                                                                                                 flag_continua = false;
@@ -287,7 +298,8 @@
 
                                                                                     })
 
-                                                                                    if (flag_continua) {
+                                                                                    if (flag_continua) 
+                                                                                    {
                                                                                         var class_div = '';
                                                                                         var descr_prestazione = '';
                                                                                         var h6hour = '';
@@ -299,12 +311,12 @@
                                                                                         else if (oraFine == null || oraFine == "null") {
                                                                                             class_div = "eseguitaparziale";
                                                                                             descr_prestazione = 'Prestazione eseguita parziale';
-                                                                                            h6hour = '<h6 class="font""><b>Ora inizio: </b>' + oraInizio + '<br></h6>'
+                                                                                            h6hour = '<h6 class="font"><b>Ora inizio: </b>' + oraInizio + '<br><b>Posizione Inizio: Long. </b>'+longitudine_inizio+' Lat. '+latitudine_inizio+'</h6>'
                                                                                         }
                                                                                         else {
                                                                                             class_div = "eseguita";
                                                                                             descr_prestazione = 'Prestazione eseguita';
-                                                                                            h6hour = '<h6 class="font" ><b>Ora inizio: </b>' + oraInizio + '<br><b>Ora Fine: </b>' + oraFine + '</h6>'
+                                                                                            h6hour = '<h6 class="font" ><b>Ora inizio: </b>' + oraInizio + '<br><b>Ora Fine: </b>' + oraFine + '<br><b>Posizione Inizio: </b>Long. '+longitudine_inizio+' Lat. '+latitudine_inizio+'<br> <b>Posizione Fine </b>Long. '+longitudine_fine+' Lat. '+latitudine_fine+'</h6>'
                                                                                         }
 
                                                                                         $("#div_prestazione_dettaglio").append('<div class=" container_div ' + class_div + '" style="padding:5%;">\
@@ -324,8 +336,9 @@
                                                                                                 </div>\
                                                                                             </div>');
 
-                                                                                        if (oraFine == null) {
-                                                                                            $("#div_prestazione_dettaglio").append('<div class="container_div_prestazione d-flex flex-row" style="margin-top:5%;" onclick="readNFC(\'' + idPrestazione + '\',\'' + oraInizio + '\',\'' + tagNfc + '\')">\
+                                                                                        if (oraFine == null) 
+                                                                                        {
+                                                                                            $("#div_prestazione_dettaglio").append('<div class="container_div_prestazione d-flex flex-row" style="margin-top:5%;" onclick="readNFC(\'' + idPrestazione + '\',\'' + oraInizio + '\',\'' + tagNfc + '\',\'' + latitudine_inizio + '\',\'' + longitudine_inizio + '\')">\
                                                                                             <div>\
                                                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play" viewBox="0 0 16 16">\
                                                                                                     <path d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/>\
@@ -506,15 +519,18 @@
 
     }
 
-    function readNFC(idPrestazione, ora_inizio, tagNfc_associato) {
+    function readNFC(idPrestazione, ora_inizio, tagNfc_associato, latitudine_inizio=null, longitudine_inizio=null) {
+
+        var latitudine_fine='';
+        var longitudine_fine='';
 
         if (isiOS()) 
         {
-
             //per prima cosa controllo se c'è la geolocalizzazione attiva
             navigator.geolocation.getCurrentPosition(onSuccess, onError);
 
             var onSuccess = function (position) {
+                /*
                 alert('Latitude: ' + position.coords.latitude + '\n' +
                     'Longitude: ' + position.coords.longitude + '\n' +
                     'Altitude: ' + position.coords.altitude + '\n' +
@@ -523,11 +539,27 @@
                     'Heading: ' + position.coords.heading + '\n' +
                     'Speed: ' + position.coords.speed + '\n' +
                     'Timestamp: ' + position.timestamp + '\n');
+                */
+
+                if(ora_inizio==null)
+                {
+                    if((latitudine_inizio==null || latitudine_inizio==undefined) && (longitudine_inizio==null || longitudine_inizio==undefined))
+                    {
+                        latitudine_inizio=position.coords.latitude;
+                        longitudine_inizio=position.coords.longitude;
+                    }
+                }
+                else
+                {
+                    latitudine_fine=position.coords.latitude;
+                    longitudine_fine=position.coords.longitude;
+                }
+              
 
                 window.nfc.enabled(
                     () => {
                         // NFC enabled
-                        this.registerTagEvent(idPrestazione, ora_inizio, tagNfc_associato)
+                        this.registerTagEvent(idPrestazione, ora_inizio, tagNfc_associato, latitudine_inizio, longitudine_inizio, latitudine_fine, longitudine_fine)
 
                     },
                     (error) => {
@@ -573,21 +605,34 @@
                                 'Speed: ' + position.coords.speed + '\n' +
                                 'Timestamp: ' + position.timestamp + '\n');
                             */
-                                window.nfc.enabled(
-                                    () => {
-                                        // NFC enabled
-                                        this.registerTagEvent(idPrestazione, ora_inizio, tagNfc_associato, position.coords.latitude, position.coords.longitude )
+                            if(ora_inizio==null)
+                            {
+                                if((latitudine_inizio==null || latitudine_inizio==undefined) && (longitudine_inizio==null || longitudine_inizio==undefined))
+                                {
+                                    latitudine_inizio=position.coords.latitude;
+                                    longitudine_inizio=position.coords.longitude;
+                                }
+                            }
+                            else
+                            {
+                                latitudine_fine=position.coords.latitude;
+                                longitudine_fine=position.coords.longitude;
+                            }
+                            window.nfc.enabled(
+                                () => {
+                                    // NFC enabled
+                                    this.registerTagEvent(idPrestazione, ora_inizio, tagNfc_associato, latitudine_inizio, longitudine_inizio, latitudine_fine, longitudine_fine)
 
-                                    },
-                                    (error) => {
-                                        if (error === 'NFC_DISABLED') {
-                                            // Trigger the phone settings to enable the NFC settings
-                                            window.nfc.showSettings()
-                                        } else if (error === 'NO_NFC') {
-                                            navigator.notification.alert('Cannot scan NFC', () => { }, 'No NFC', 'OK')
-                                        }
+                                },
+                                (error) => {
+                                    if (error === 'NFC_DISABLED') {
+                                        // Trigger the phone settings to enable the NFC settings
+                                        window.nfc.showSettings()
+                                    } else if (error === 'NO_NFC') {
+                                        navigator.notification.alert('Cannot scan NFC', () => { }, 'No NFC', 'OK')
                                     }
-                                )
+                                }
+                            )
                         };
 
 
@@ -635,21 +680,34 @@
                             'Speed: ' + position.coords.speed + '\n' +
                             'Timestamp: ' + position.timestamp + '\n');
                         */
-                            window.nfc.enabled(
-                                    () => {
-                                        // NFC enabled
-                                        this.registerTagEvent(idPrestazione, ora_inizio, tagNfc_associato, position.coords.latitude, position.coords.longitude )
+                        if(ora_inizio==null)
+                        {
+                            if((latitudine_inizio==null || latitudine_inizio==undefined) && (longitudine_inizio==null || longitudine_inizio==undefined))
+                            {
+                                latitudine_inizio=position.coords.latitude;
+                                longitudine_inizio=position.coords.longitude;
+                            }
+                        }
+                        else
+                        {
+                            latitudine_fine=position.coords.latitude;
+                            longitudine_fine=position.coords.longitude;
+                        }
 
-                                    },
-                                    (error) => {
-                                        if (error === 'NFC_DISABLED') {
-                                            // Trigger the phone settings to enable the NFC settings
-                                            window.nfc.showSettings()
-                                        } else if (error === 'NO_NFC') {
-                                            navigator.notification.alert('Cannot scan NFC', () => { }, 'No NFC', 'OK')
-                                        }
-                                    }
-                                )
+                        window.nfc.enabled(
+                            () => {
+                                // NFC enabled
+                                this.registerTagEvent(idPrestazione, ora_inizio, tagNfc_associato, latitudine_inizio, longitudine_inizio, latitudine_fine, longitudine_fine)
+                            },
+                            (error) => {
+                                if (error === 'NFC_DISABLED') {
+                                    // Trigger the phone settings to enable the NFC settings
+                                    window.nfc.showSettings()
+                                } else if (error === 'NO_NFC') {
+                                    navigator.notification.alert('Cannot scan NFC', () => { }, 'No NFC', 'OK')
+                                }
+                            }
+                        )
                     };
 
 
@@ -678,9 +736,9 @@
         }
     }
 
-    function registerTagEvent(idPrestazione, ora_inizio, tagNfc_associato, latitudine, longitudine) {
+    function registerTagEvent(idPrestazione, ora_inizio, tagNfc_associato, latitudine_inizio, longitudine_inizio, latitudine_fine, longitudine_fine) {
         window.nfc.addNdefListener(
-            this.onSuccess(idPrestazione, ora_inizio, tagNfc_associato),
+            this.onSuccess(idPrestazione, ora_inizio, tagNfc_associato, latitudine_inizio, longitudine_inizio, latitudine_fine, longitudine_fine),
             () => {
                 navigator.notification.activityStart('', 'Lettura tag nfc in corso, appoggiare la tessera NFC nel retro del dispositivo');
             },
@@ -694,7 +752,7 @@
         nfc.showSettings();
     }
 
-    function onSuccess(idPrestazione, ora_inizio, tagNfc_associato) {
+    function onSuccess(idPrestazione, ora_inizio, tagNfc_associato, latitudine_inizio, longitudine_inizio, latitudine_fine, longitudine_fine) {
 
         navigator.notification.beep(1);
         if (isiOS()) {
@@ -703,7 +761,7 @@
                 tag => {
                     if (tag.id) {
                         console.log("2.1: " + nfc.bytesToHexString(tag.id));
-                        readSuccess(tag, idPrestazione, ora_inizio, tagNfc_associato)
+                        readSuccess(tag, idPrestazione, ora_inizio, tagNfc_associato, latitudine_inizio, longitudine_inizio, latitudine_fine, longitudine_fine)
                     }
                 },
                 err => console.log(err)
@@ -713,13 +771,13 @@
         }
         else {
 
-            nfc.readerMode(nfc.FLAG_READER_NFC_A, nfcTag => readSuccess(nfcTag, idPrestazione, ora_inizio, tagNfc_associato), error => alert('NFC reader mode failed', error));
+            nfc.readerMode(nfc.FLAG_READER_NFC_A, nfcTag => readSuccess(nfcTag, idPrestazione, ora_inizio, tagNfc_associato, latitudine_inizio, longitudine_inizio, latitudine_fine, longitudine_fine), error => alert('NFC reader mode failed', error));
 
         }
 
     }
 
-    function readSuccess(nfcTag, idPrestazione, ora_inizio, tagNfc_associato) {
+    function readSuccess(nfcTag, idPrestazione, ora_inizio, tagNfc_associato, latitudine_inizio, longitudine_inizio, latitudine_fine, longitudine_fine) {
         //controllare il tag
         var tagId = nfc.bytesToHexString(nfcTag.id); //tag della tessera
         //var tagId = nfcTag.id;
@@ -729,32 +787,14 @@
 
         //tagNfc_associato -> tag associato all'utente
         //tagId="0482510AE37380"
-        //alert(tagId)
-        //alert(tagNfc_associato)
+        //alert(latitudine_inizio)
+        //alert(longitudine_inizio)
+        //return false;
         if (tagNfc_associato == tagId) {
             var ora = getTIME()
 
-            //return false;
-            //alert(ora_inizio)
-
-            /*
-            if (idtipoprestazione.indexOf(',') != -1) 
-                var aIDTIPIPRESTAZIONI = idtipoprestazione.split(',');
-            else
-            {
-                var aIDTIPIPRESTAZIONI = [];
-                aIDTIPIPRESTAZIONI.push(idtipoprestazione)
-            }
-            */
-            //var count_element=aIDTIPIPRESTAZIONI.length;
-
-            //return false;
-
             if (ora_inizio == null && idPrestazione == null) //prestazione nuova faccio una POST
             {
-                //!!!!controllare se il soggetto corrisponde al soggetto del tag nfc!!!
-
-
                 var body = {
                     'idIntervento': idIntervento,
                     'idGruppoPrestazione': idgruppo,
@@ -763,12 +803,13 @@
                     "oraInizio": ora,
                     'erogata': true,
                     'fatturabile': true,
-                    'dataAccesso': oggi
+                    'dataAccesso': oggi,
+                    'latInizio': latitudine_inizio,
+                    'lonInizio': longitudine_inizio
                 };
-                var aBODY = JSON.stringify(body);
-                //alert("POST: " + aBODY)
-                //return false;
 
+                var aBODY = JSON.stringify(body);
+               
                 var url = 'https://' + base_url + '/services/interventiservice/api/prestazioni';
 
                 $.ajax({
@@ -903,7 +944,11 @@
                     'oraInizio': ora_inizio,
                     'oraFine': ora,
                     "erogata": true,
-                    "fatturabile": true
+                    "fatturabile": true,
+                    'latInizio': latitudine_inizio,
+                    'longInizio': longitudine_inizio,
+                    'latFine': latitudine_fine,
+                    'lonFine': longitudine_fine
                 };
                 var aBODY = JSON.stringify(body);
                 //alert("PUT: " + aBODY)
@@ -1077,10 +1122,14 @@
     }
 
 
-    function openCAMERA(idPrestazione, ora_inizio, codice_fiscale) {
+    function openCAMERA(idPrestazione, ora_inizio, codice_fiscale, latitudine_inizio=null, longitudine_inizio=null) {
+
+        var latitudine_fine='';
+        var longitudine_fine='';
 
         if (isiOS()) {
             var onSuccess = function (position) {
+                /*
                 alert('Latitude: ' + position.coords.latitude + '\n' +
                     'Longitude: ' + position.coords.longitude + '\n' +
                     'Altitude: ' + position.coords.altitude + '\n' +
@@ -1089,12 +1138,28 @@
                     'Heading: ' + position.coords.heading + '\n' +
                     'Speed: ' + position.coords.speed + '\n' +
                     'Timestamp: ' + position.timestamp + '\n');
+                    */
+
+                    
+                if(ora_inizio==null)
+                {
+                    if((latitudine_inizio==null || latitudine_inizio==undefined) && (longitudine_inizio==null || longitudine_inizio==undefined))
+                    {
+                        latitudine_inizio=position.coords.latitude;
+                        longitudine_inizio=position.coords.longitude;
+                    }
+                }
+                else
+                {
+                    latitudine_fine=position.coords.latitude;
+                    longitudine_fine=position.coords.longitude;
+                }
 
                 cordova.plugins.barcodeScanner.scan(
                     function (result) {
                         if (result.text != '') {
                             if (result.text == codice_fiscale)
-                                readSuccessCAMERA(result.text, idPrestazione, ora_inizio, codice_fiscale, position.coords.latitude, position.coords.longitude)
+                                readSuccessCAMERA(result.text, idPrestazione, ora_inizio, codice_fiscale, latitudine_inizio, longitudine_inizio, latitudine_fine, longitudine_fine)
                             else {
                                 function alertDismissed() {
 
@@ -1164,6 +1229,7 @@
                 if (!enabled) {
                     function onRequestSuccess(success) {
                         var onSuccess = function (position) {
+                            /*
                             alert('Latitude: ' + position.coords.latitude + '\n' +
                                 'Longitude: ' + position.coords.longitude + '\n' +
                                 'Altitude: ' + position.coords.altitude + '\n' +
@@ -1172,12 +1238,28 @@
                                 'Heading: ' + position.coords.heading + '\n' +
                                 'Speed: ' + position.coords.speed + '\n' +
                                 'Timestamp: ' + position.timestamp + '\n');
+                            */
+
+                                    
+                            if(ora_inizio==null)
+                            {
+                                if((latitudine_inizio==null || latitudine_inizio==undefined) && (longitudine_inizio==null || longitudine_inizio==undefined))
+                                {
+                                    latitudine_inizio=position.coords.latitude;
+                                    longitudine_inizio=position.coords.longitude;
+                                }
+                            }
+                            else
+                            {
+                                latitudine_fine=position.coords.latitude;
+                                longitudine_fine=position.coords.longitude;
+                            }
 
                             cordova.plugins.barcodeScanner.scan(
                                 function (result) {
                                     if (result.text != '') {
                                         if (result.text == codice_fiscale)
-                                            readSuccessCAMERA(result.text, idPrestazione, ora_inizio, codice_fiscale, position.coords.latitude, position.coords.longitude)
+                                            readSuccessCAMERA(result.text, idPrestazione, ora_inizio, codice_fiscale, latitudine_inizio, longitudine_inizio, latitudine_fine, longitudine_fine)
                                         else {
                                             function alertDismissed() {
 
@@ -1259,6 +1341,7 @@
                 else 
                 {
                     var onSuccess = function (position) {
+                        /*
                         alert('Latitude: ' + position.coords.latitude + '\n' +
                             'Longitude: ' + position.coords.longitude + '\n' +
                             'Altitude: ' + position.coords.altitude + '\n' +
@@ -1267,12 +1350,27 @@
                             'Heading: ' + position.coords.heading + '\n' +
                             'Speed: ' + position.coords.speed + '\n' +
                             'Timestamp: ' + position.timestamp + '\n');
+                        */
+
+                        if(ora_inizio==null)
+                        {
+                            if((latitudine_inizio==null || latitudine_inizio==undefined) && (longitudine_inizio==null || longitudine_inizio==undefined))
+                            {
+                                latitudine_inizio=position.coords.latitude;
+                                longitudine_inizio=position.coords.longitude;
+                            }
+                        }
+                        else
+                        {
+                            latitudine_fine=position.coords.latitude;
+                            longitudine_fine=position.coords.longitude;
+                        }
 
                         cordova.plugins.barcodeScanner.scan(
                             function (result) {
                                 if (result.text != '') {
                                     if (result.text == codice_fiscale)
-                                        readSuccessCAMERA(result.text, idPrestazione, ora_inizio, codice_fiscale, position.coords.latitude, position.coords.longitude)
+                                        readSuccessCAMERA(result.text, idPrestazione, ora_inizio, codice_fiscale, latitudine_inizio, longitudine_inizio, latitudine_fine, longitudine_fine)
                                     else {
                                         function alertDismissed() {
 
@@ -1345,7 +1443,7 @@
 
     }
 
-    function readSuccessCAMERA(codicefiscale_letto, idPrestazione, ora_inizio, codicefiscale_associato, latitudine, longitudine) {
+    function readSuccessCAMERA(codicefiscale_letto, idPrestazione, ora_inizio, codicefiscale_associato, latitudine_inizio, longitudine_inizio, latitudine_fine, longitudine_fine) {
 
         var realms = localStorage.getItem('realm');
         var base_url = localStorage.getItem('base_url');
@@ -1364,7 +1462,9 @@
                     "oraInizio": ora,
                     'erogata': true,
                     'fatturabile': true,
-                    'dataAccesso': oggi
+                    'dataAccesso': oggi,
+                    'latInizio': latitudine_inizio,
+                    'lonInizio': longitudine_inizio
                 };
                 var aBODY = JSON.stringify(body);
                 //alert("POST: " + aBODY)
@@ -1503,7 +1603,11 @@
                     'oraInizio': ora_inizio,
                     'oraFine': ora,
                     "erogata": true,
-                    "fatturabile": true
+                    "fatturabile": true,
+                    'latInizio': latitudine_inizio,
+                    'longInizio': longitudine_inizio,
+                    'latFine': latitudine_fine,
+                    'lonFine': longitudine_fine
                 };
                 var aBODY = JSON.stringify(body);
                 //alert("PUT: " + aBODY)
